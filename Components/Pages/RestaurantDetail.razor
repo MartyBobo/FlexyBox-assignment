@@ -23,12 +23,12 @@
                     <span>@Restaurant.Address</span>
                 </div>
             </div>            <div class="restaurant-favorite">
-                <button class="favorite-button @(IsFavorited ? "favorited" : "") @(IsPulsing ? "pulse" : "")" 
+                <button class="icon-button favorite-button @(IsFavorited ? "favorited" : "") @(IsPulsing ? "pulse" : "")" 
                         @onclick="OnToggleFavorite"
                         disabled="@IsToggling">
                     @if (IsToggling)
                     {
-                        <div class="spinner-small"></div>
+                        <div class="spinner"></div>
                     }
                     else
                     {
@@ -38,11 +38,11 @@
             </div>
         </div>        <div class="restaurant-contact">
             <div class="contact-item">
-                <img src="/images/icons/phone-icon.svg" alt="Phone" class="contact-icon-custom" />
+                <img src="/images/icons/phone-icon.svg" alt="Phone" class="icon" />
                 <span>@Restaurant.Phone</span>
             </div>
             <div class="contact-item">
-                <img src="/images/icons/email-icon.svg" alt="Email" class="contact-icon-custom" />
+                <img src="/images/icons/email-icon.svg" alt="Email" class="icon" />
                 <span>@Restaurant.Email</span>
             </div>
         </div>

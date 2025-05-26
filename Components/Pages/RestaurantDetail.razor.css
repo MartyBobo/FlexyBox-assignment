@@ -1,5 +1,5 @@
 .restaurant-detail {
-    padding: 16px;
+    padding: var(--spacing-lg);
     max-width: 100%;
 }
 
@@ -7,7 +7,7 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-start;
-    margin-bottom: 16px;
+    margin-bottom: var(--spacing-lg);
 }
 
 .restaurant-title h1 {
@@ -17,8 +17,8 @@
 }
 
 .restaurant-status {
-    margin-top: 4px;
-    font-size: 14px;
+    margin-top: var(--spacing-xs);
+    font-size: var(--font-size-base);
 }
 
 .restaurant-status.open {
@@ -30,23 +30,12 @@
 }
 
 .restaurant-address {
-    margin-top: 8px;
+    margin-top: var(--spacing-sm);
     color: #666;
-    font-size: 14px;
+    font-size: var(--font-size-base);
 }
 
-.restaurant-favorite button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: 4px;
-    position: relative;
-    transition: transform 0.2s ease;
-}
-
-.restaurant-favorite button:hover {
-    transform: scale(1.1);
-}
+/* Use shared icon-button class */
 
 .restaurant-favorite button:disabled {
     cursor: not-allowed;
@@ -69,49 +58,16 @@
     transform: scale(1.1);
 }
 
-.restaurant-favorite button.pulse .heart-icon {
-    animation: pulse 0.3s ease-out;
-}
-
-@keyframes pulse {
-    0% { 
-        transform: scale(1); 
-    }
-    50% { 
-        transform: scale(1.3); 
-    }
-    100% { 
-        transform: scale(1); 
-    }
-}
-
-.spinner-small {
-    width: 16px;
-    height: 16px;
-    border: 2px solid #f3f3f3;
-    border-top: 2px solid #007bff;
-    border-radius: 50%;
-    animation: spin 1s linear infinite;
-    margin: 4px;
-}
-
-@keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
-}
+/* Remove redundant animations - using shared pulse class */
 
 .restaurant-contact {
     display: flex;
     flex-direction: column;
-    gap: 12px;
+    gap: var(--spacing-md);
     margin-bottom: 20px;
 }
 
-.contact-item {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+/* Use shared contact-item class */
 
 .contact-icon {
     color: #666;
@@ -119,44 +75,12 @@
     text-align: center;
 }
 
-.contact-icon-custom {
-    width: 20px;
-    height: 20px;
-    margin-right: 8px;
-    vertical-align: middle;
-    object-fit: contain;
-}
-
 /* Optional: Add hover effects */
 .contact-item:hover .contact-icon-custom {
     opacity: 0.8;
 }
 
-.gallery-container {
-    width: 100%;
-    margin-bottom: 24px;
-    position: relative;
-    overflow: hidden;
-}
-
-.gallery-scroller {
-    display: flex;
-    overflow-x: auto;
-    -webkit-overflow-scrolling: touch;
-    scroll-snap-type: x mandatory;
-    gap: 12px;
-    padding: 8px 0;
-}
-
-.gallery-image {
-    flex: 0 0 auto;
-    width: 280px;
-    height: 180px;
-    border-radius: 12px;
-    overflow: hidden;
-    scroll-snap-align: start;
-    position: relative;
-}
+/* Use shared gallery classes */
 
 .gallery-image img {
     width: 100%;
@@ -223,8 +147,7 @@
 .hours-item {
     display: flex;
     justify-content: space-between;
-    padding: 8px 0;
-    border-bottom: 1px solid #eee;
+    padding: 8px 0;    border-bottom: 1px solid #eee;
 }
 
 .day-name {
@@ -238,18 +161,18 @@
 .debug-info {
     background-color: #ffefdb;
     border: 1px dashed #ffaa00;
-    padding: 4px 8px;
+    padding: var(--spacing-xs) var(--spacing-sm);
     margin-bottom: 10px;
-    font-size: 14px;
-    border-radius: 4px;
+    font-size: var(--font-size-base);
+    border-radius: var(--border-radius);
 }
 
 .status-message {
     background-color: #e8f5e9;
     border-left: 4px solid #4CAF50;
-    padding: 8px 12px;
-    margin-bottom: 16px;
-    font-size: 14px;
+    padding: var(--spacing-sm) var(--spacing-md);
+    margin-bottom: var(--spacing-lg);
+    font-size: var(--font-size-base);
     color: #2e7d32;
 }
 
