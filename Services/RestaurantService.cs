@@ -1,5 +1,6 @@
 using Application.DTOs;
 using Application.Resturants.Queries;
+using Application.Queries;
 using MediatR;
 
 namespace FlexyBox.Services;
@@ -57,6 +58,21 @@ public class RestaurantService : IRestaurantService
         {
             // Log the exception and return false as default
             return false;
+        }
+    }
+
+    public async Task<List<ResturantDto>> SearchRestaurantsAsync(string searchTerm)
+    {
+        try
+        {
+            var query = new SearchRestaurantsQuery { SearchTerm = searchTerm };
+            var restaurants = await _mediator.Send(query);
+            return restaurants;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            throw new Exception($"Error searching restaurants with term '{searchTerm}'", ex);
         }
     }
 }

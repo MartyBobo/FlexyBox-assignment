@@ -1,0 +1,140 @@
+@page "/search"
+@rendermode InteractiveServer
+@using Application.DTOs
+@using FlexyBox.Services
+@inject IRestaurantService RestaurantService
+@inject IJSRuntime JSRuntime
+
+<div class="search-page">
+    <div class="search-header">
+        <h1>Search Restaurants</h1>
+    </div>
+
+    <div class="search-container">
+        <div class="search-input-container">
+            <input type="text" 
+                   @bind="SearchTerm" 
+                   @bind:event="oninput"
+                   @onkeypress="OnKeyPress"
+                   placeholder="Search by name or address..." 
+                   class="search-input" />
+            <button @onclick="SearchRestaurants" 
+                    disabled="@IsSearching" 
+                    class="search-button">
+                @if (IsSearching)
+                {
+                    <span class="spinner"></span>
+                }
+                else
+                {
+                    <img src="/images/icons/search-icon.svg" alt="Search" class="search-icon" />
+                }
+            </button>
+        </div>
+    </div>
+
+    <div class="search-results">
+        @if (IsSearching)
+        {
+            <div class="loading-message">Searching...</div>
+        }
+        else if (HasSearched && !Results.Any())
+        {
+            <div class="no-results">
+                <p>No restaurants found for "@SearchTerm"</p>
+                <p>Try searching with a different name or address.</p>
+            </div>
+        }
+        else if (Results.Any())
+        {
+            <div class="results-count">
+                Found @Results.Count restaurant@(Results.Count == 1 ? "" : "s")
+            </div>
+            
+            @foreach (var restaurant in Results)
+            {
+                <a href="/restaurant/@restaurant.Id" class="search-result">
+                    <div class="result-content">
+                        <div class="result-name">@restaurant.Name</div>
+                        <div class="result-address">@restaurant.Address</div>
+                        <div class="result-status @(restaurant.IsOpen ? "open" : "closed")">
+                            • @(restaurant.IsOpen ? "Open" : "Closed")
+                        </div>
+                    </div>
+                    <div class="result-arrow">
+                        <span>→</span>
+                    </div>
+                </a>
+            }
+        }
+    </div>
+</div>
+
+@code {
+    private string SearchTerm = string.Empty;
+    private List<ResturantDto> Results = new();
+    private bool IsSearching = false;
+    private bool HasSearched = false;
+    private Timer? _debounceTimer;
+
+    protected override void OnInitialized()
+    {
+        // Auto-focus the search input when the page loads
+        _ = Task.Run(async () =>
+        {
+            await Task.Delay(100);
+            await JSRuntime.InvokeVoidAsync("focusElement", ".search-input");
+        });
+    }
+
+    private async Task OnKeyPress(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            await SearchRestaurants();
+        }
+        else
+        {
+            // Debounce search as user types
+            _debounceTimer?.Dispose();
+            _debounceTimer = new Timer(async _ => await InvokeAsync(SearchRestaurants), null, 500, Timeout.Infinite);
+        }
+    }
+
+    private async Task SearchRestaurants()
+    {
+        if (string.IsNullOrWhiteSpace(SearchTerm))
+        {
+            Results.Clear();
+            HasSearched = false;
+            StateHasChanged();
+            return;
+        }
+
+        IsSearching = true;
+        StateHasChanged();
+
+        try
+        {
+            Results = await RestaurantService.SearchRestaurantsAsync(SearchTerm);
+            HasSearched = true;
+        }
+        catch (Exception ex)
+        {
+            // Handle error - for now just clear results
+            Results.Clear();
+            HasSearched = true;
+            // TODO: Show error message to user
+        }
+        finally
+        {
+            IsSearching = false;
+            StateHasChanged();
+        }
+    }
+
+    public void Dispose()
+    {
+        _debounceTimer?.Dispose();
+    }
+}
