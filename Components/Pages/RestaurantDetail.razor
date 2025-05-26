@@ -23,8 +23,17 @@
                     <span>@Restaurant.Address</span>
                 </div>
             </div>            <div class="restaurant-favorite">
-                <button class="favorite-button">
-                    <img src="/images/icons/heart-icon.svg" alt="Favorite" class="heart-icon" />
+                <button class="favorite-button @(IsFavorited ? "favorited" : "") @(IsPulsing ? "pulse" : "")" 
+                        @onclick="OnToggleFavorite"
+                        disabled="@IsToggling">
+                    @if (IsToggling)
+                    {
+                        <div class="spinner-small"></div>
+                    }
+                    else
+                    {
+                        <img src="@FavoriteIcon" alt="Favorite" class="heart-icon" />
+                    }
                 </button>
             </div>
         </div>        <div class="restaurant-contact">
@@ -94,10 +103,18 @@
         </div>    }
 </div>
 
-@code {
-    [Parameter]
-    public int Id { get; set; }    private ResturantDto? Restaurant { get; set; }
+@code {    [Parameter]
+    public int Id { get; set; }
+
+    private ResturantDto? Restaurant { get; set; }
     private string? SelectedMode { get; set; }
+    private bool IsFavorited { get; set; }
+    private bool IsToggling { get; set; }
+    private bool IsPulsing { get; set; }
+    
+    private string FavoriteIcon => IsFavorited 
+        ? "/images/icons/heart-filled.svg" 
+        : "/images/icons/heart-icon.svg";
 
     protected override async Task OnInitializedAsync()
     {
@@ -110,7 +127,8 @@
             await LoadRestaurant();
         }
     }    private async Task LoadRestaurant()
-    {        try
+    {
+        try
         {
             Restaurant = await RestaurantService.GetRestaurantAsync(Id);
 
@@ -119,6 +137,9 @@
                 NavigationManager.NavigateTo("/");
                 return;
             }
+
+            // Load favorite status
+            IsFavorited = await RestaurantService.IsFavoriteAsync(Id);
 
             if (Restaurant.OpeningHours != null && Restaurant.OpeningHours.Any())
             {
@@ -132,14 +153,53 @@
             else
             {
                 SelectedMode = null;
-            }        }
+            }
+        }
         catch (Exception)
         {
             // Handle error appropriately - could set an error message property
         }
-    }private async Task HandleModeSelection(string mode)
+    }    private async Task HandleModeSelection(string mode)
     {
         SelectedMode = mode;
         await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task OnToggleFavorite()
+    {
+        if (IsToggling) return;
+
+        IsToggling = true;
+        StateHasChanged();
+
+        try
+        {
+            var wasToggled = await RestaurantService.ToggleFavoriteAsync(Id);
+            IsFavorited = !IsFavorited; // Toggle the state
+            
+            // Trigger pulse animation
+            IsPulsing = true;
+            StateHasChanged();
+              // Show feedback message
+            var message = IsFavorited 
+                ? $"{Restaurant?.Name} added to favorites!" 
+                : $"{Restaurant?.Name} removed from favorites!";
+            
+            await JSRuntime.InvokeVoidAsync("showToast", message, "success");
+            
+            // Remove pulse animation after a short delay
+            await Task.Delay(300);
+            IsPulsing = false;
+            StateHasChanged();
+        }        catch (Exception ex)
+        {
+            // Handle error
+            await JSRuntime.InvokeVoidAsync("showToast", "Error updating favorites. Please try again.", "error");
+        }
+        finally
+        {
+            IsToggling = false;
+            StateHasChanged();
+        }
     }
 }

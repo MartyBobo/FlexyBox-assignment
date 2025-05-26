@@ -40,21 +40,64 @@
     border: none;
     cursor: pointer;
     padding: 4px;
+    position: relative;
+    transition: transform 0.2s ease;
+}
+
+.restaurant-favorite button:hover {
+    transform: scale(1.1);
+}
+
+.restaurant-favorite button:disabled {
+    cursor: not-allowed;
+    opacity: 0.7;
 }
 
 .heart-icon {
     width: 24px;
     height: 24px;
     opacity: 0.5;
-    transition: opacity 0.2s ease;
+    transition: all 0.3s ease;
 }
 
 .restaurant-favorite button:hover .heart-icon {
     opacity: 1;
 }
 
-.restaurant-favorite button.active .heart-icon {
+.restaurant-favorite button.favorited .heart-icon {
     opacity: 1;
+    transform: scale(1.1);
+}
+
+.restaurant-favorite button.pulse .heart-icon {
+    animation: pulse 0.3s ease-out;
+}
+
+@keyframes pulse {
+    0% { 
+        transform: scale(1); 
+    }
+    50% { 
+        transform: scale(1.3); 
+    }
+    100% { 
+        transform: scale(1); 
+    }
+}
+
+.spinner-small {
+    width: 16px;
+    height: 16px;
+    border: 2px solid #f3f3f3;
+    border-top: 2px solid #007bff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    margin: 4px;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
 .restaurant-contact {

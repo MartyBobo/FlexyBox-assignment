@@ -1,6 +1,7 @@
 using Application.DTOs;
 using Application.Resturants.Queries;
 using Application.Queries;
+using Application.Commands;
 using MediatR;
 
 namespace FlexyBox.Services;
@@ -27,32 +28,26 @@ public class RestaurantService : IRestaurantService
             // Log the exception
             throw new Exception($"Error retrieving restaurant with id {id}", ex);
         }
-    }
-
-    public async Task<bool> ToggleFavoriteAsync(int id)
+    }    public async Task<bool> ToggleFavoriteAsync(int id)
     {
         try
         {
-            // For now, just return true - implement actual favorite logic later
-            // TODO: Implement ToggleFavoriteCommand when you create the favorites feature
-            await Task.Delay(1); // Simulate async operation
-            return true;
+            var command = new ToggleFavoriteCommand { RestaurantId = id };
+            var result = await _mediator.Send(command);
+            return result;
         }
         catch (Exception ex)
         {
             // Log the exception
             throw new Exception($"Error toggling favorite for restaurant {id}", ex);
         }
-    }
-
-    public async Task<bool> IsFavoriteAsync(int id)
+    }    public async Task<bool> IsFavoriteAsync(int id)
     {
         try
         {
-            // For now, return false - implement actual logic later
-            // TODO: Implement GetIsFavoriteQuery when you create the favorites feature
-            await Task.Delay(1); // Simulate async operation
-            return false;
+            var query = new IsFavoriteQuery { RestaurantId = id };
+            var result = await _mediator.Send(query);
+            return result;
         }
         catch (Exception ex)
         {
