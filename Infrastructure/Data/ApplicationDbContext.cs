@@ -11,11 +11,10 @@ namespace MyApp.Server.Infrastructure.Data
         : DbContext, IApplicationDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }
-
-        public DbSet<Resturant> Resturants    { get; set; } = null!;
+            : base(options) { }        public DbSet<Resturant> Resturants    { get; set; } = null!;
         public DbSet<OpeningHours> OpeningHours  { get; set; } = null!;
         public DbSet<GalleryImage> GalleryImages { get; set; } = null!;
+        public DbSet<Favorite> Favorites { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -33,10 +32,21 @@ namespace MyApp.Server.Infrastructure.Data
                 .HasForeignKey(g => g.ResturantId);
 
             builder.Entity<OpeningHours>()
-                .ToTable("OpeningHours");
-
-            builder.Entity<GalleryImage>()
+                .ToTable("OpeningHours");            builder.Entity<GalleryImage>()
                 .ToTable("GalleryImages");
+
+            builder.Entity<Favorite>()
+                .ToTable("Favorites")
+                .HasKey(f => f.Id);
+
+            builder.Entity<Favorite>()
+                .HasIndex(f => new { f.UserId, f.RestaurantId })
+                .IsUnique();
+
+            builder.Entity<Favorite>()
+                .HasOne(f => f.Restaurant)
+                .WithMany()
+                .HasForeignKey(f => f.RestaurantId);
         }
     }
 }

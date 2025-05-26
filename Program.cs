@@ -18,6 +18,9 @@ builder.Services.AddMediatR(cfg => {
 // Register restaurant service
 builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 
+// Register current user service
+builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
+
 // Register ApplicationDbContext and IApplicationDbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(

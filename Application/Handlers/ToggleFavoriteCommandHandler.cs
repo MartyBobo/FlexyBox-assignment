@@ -1,6 +1,8 @@
 using Application.Commands;
 using Application.Interfaces;
+using Domain.Entities;
 using MediatR;
+using Microsoft.EntityFrameworkCore;
 
 namespace Application.Handlers;
 
@@ -15,18 +17,29 @@ public class ToggleFavoriteCommandHandler : IRequestHandler<ToggleFavoriteComman
 
     public async Task<bool> Handle(ToggleFavoriteCommand request, CancellationToken cancellationToken)
     {
-        // For now, we'll use a simple in-memory approach
-        // In a real application, you would store favorites in a database table
-        // This is just a simulation that always toggles successfully
-        
-        // TODO: Implement actual favorite storage logic
-        // Example:
-        // - Check if favorite exists in database
-        // - If exists, remove it
-        // - If doesn't exist, add it
-        // - Return true if now favorited, false if unfavorited
-        
-        await Task.Delay(100, cancellationToken); // Simulate database operation
-        return true; // For now, always return true (favorited)
+        var existingFavorite = await _context.Favorites
+            .FirstOrDefaultAsync(f => f.UserId == request.UserId && f.RestaurantId == request.RestaurantId, cancellationToken);
+
+        if (existingFavorite != null)
+        {
+            // Remove from favorites
+            _context.Favorites.Remove(existingFavorite);
+            await _context.SaveChangesAsync(cancellationToken);
+            return false; // Not favorited anymore
+        }
+        else
+        {
+            // Add to favorites
+            var newFavorite = new Favorite
+            {
+                UserId = request.UserId,
+                RestaurantId = request.RestaurantId,
+                CreatedAt = DateTime.UtcNow
+            };
+            
+            _context.Favorites.Add(newFavorite);
+            await _context.SaveChangesAsync(cancellationToken);
+            return true; // Now favorited
+        }
     }
 }

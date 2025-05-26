@@ -8,6 +8,7 @@ public interface IApplicationDbContext
     DbSet<Resturant> Resturants { get; }
     DbSet<OpeningHours> OpeningHours { get; }
     DbSet<GalleryImage> GalleryImages { get; }
+    DbSet<Favorite> Favorites { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

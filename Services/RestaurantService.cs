@@ -9,10 +9,12 @@ namespace FlexyBox.Services;
 public class RestaurantService : IRestaurantService
 {
     private readonly IMediator _mediator;
+    private readonly ICurrentUserService _currentUser;
 
-    public RestaurantService(IMediator mediator)
+    public RestaurantService(IMediator mediator, ICurrentUserService currentUser)
     {
         _mediator = mediator;
+        _currentUser = currentUser;
     }
 
     public async Task<ResturantDto?> GetRestaurantAsync(int id)
@@ -32,7 +34,7 @@ public class RestaurantService : IRestaurantService
     {
         try
         {
-            var command = new ToggleFavoriteCommand { RestaurantId = id };
+            var command = new ToggleFavoriteCommand { UserId = _currentUser.UserId, RestaurantId = id };
             var result = await _mediator.Send(command);
             return result;
         }
@@ -45,7 +47,7 @@ public class RestaurantService : IRestaurantService
     {
         try
         {
-            var query = new IsFavoriteQuery { RestaurantId = id };
+            var query = new IsFavoriteQuery { UserId = _currentUser.UserId, RestaurantId = id };
             var result = await _mediator.Send(query);
             return result;
         }
@@ -68,6 +70,21 @@ public class RestaurantService : IRestaurantService
         {
             // Log the exception
             throw new Exception($"Error searching restaurants with term '{searchTerm}'", ex);
+        }
+    }
+
+    public async Task<List<ResturantDto>> GetFavoritesAsync()
+    {
+        try
+        {
+            var query = new GetFavoritesByUserQuery { UserId = _currentUser.UserId };
+            var favorites = await _mediator.Send(query);
+            return favorites;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            throw new Exception($"Error retrieving favorites for user {_currentUser.UserId}", ex);
         }
     }
 }

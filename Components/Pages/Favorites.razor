@@ -1,0 +1,82 @@
+@page "/favorites"
+@rendermode InteractiveServer
+@using Application.DTOs
+@using FlexyBox.Services
+@inject IRestaurantService RestaurantService
+
+<div class="favorites-page">
+    <div class="favorites-header">
+        <h1>My Favorites</h1>
+        <div class="favorites-subtitle">Restaurants you've saved</div>
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading your favorites...</div>
+        </div>
+    }
+    else if (FavoriteRestaurants == null || !FavoriteRestaurants.Any())
+    {
+        <div class="empty-state">
+            <div class="empty-icon">💔</div>
+            <h3>No favorites yet</h3>
+            <p>Start exploring restaurants and tap the heart icon to add them to your favorites!</p>
+            <a href="/" class="explore-button">Explore Restaurants</a>
+        </div>
+    }
+    else
+    {        <div class="favorites-count">
+            @FavoriteRestaurants.Count favorite@(FavoriteRestaurants.Count == 1 ? "" : "s")
+        </div>
+        
+        <div class="favorites-list">
+            @foreach (var restaurant in FavoriteRestaurants)
+            {
+                <a href="/restaurant/@restaurant.Id" class="favorite-item">
+                    <div class="favorite-content">
+                        <div class="favorite-name">@restaurant.Name</div>
+                        <div class="favorite-address">@restaurant.Address</div>
+                        <div class="favorite-status @(restaurant.IsOpen ? "open" : "closed")">
+                            • @(restaurant.IsOpen ? "Open" : "Closed")
+                        </div>
+                    </div>
+                    <div class="favorite-arrow">
+                        <span>→</span>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<ResturantDto>? FavoriteRestaurants;
+    private bool IsLoading = true;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadFavorites();
+    }    private async Task LoadFavorites()
+    {
+        try
+        {
+            IsLoading = true;
+            StateHasChanged();
+            
+            FavoriteRestaurants = await RestaurantService.GetFavoritesAsync();
+        }
+        catch (Exception ex)
+        {
+            // Handle error - for now just set empty list
+            FavoriteRestaurants = new List<ResturantDto>();
+            // TODO: Show error message to user
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+}
