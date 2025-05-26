@@ -9,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Register ApplicationDbContext and IApplicationDbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
         builder.Configuration.GetConnectionString("DefaultConnection"),
@@ -31,9 +32,8 @@ using (var scope = app.Services.CreateScope())
         
         // This will apply any pending migrations or create the database if it doesn't exist
         context.Database.Migrate();
-        
-        // Optional: Seed data here or call a seed method
-        await ApplicationDbContextSeed.SeedSampleDataAsync(context);
+          // Optional: Seed data here or call a seed method
+        await DataSeeder.SeedSampleDataAsync(context);
     }
     catch (Exception ex)
     {

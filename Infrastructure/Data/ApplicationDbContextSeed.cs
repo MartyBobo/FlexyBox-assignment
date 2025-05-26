@@ -3,7 +3,7 @@
 using Domain.Entities;
 using MyApp.Server.Infrastructure.Data;
 
-public class ApplicationDbContextSeed
+public class DataSeeder
 {
     public static async Task SeedSampleDataAsync(ApplicationDbContext context)
     {
@@ -156,6 +156,78 @@ public class ApplicationDbContextSeed
                 EndTime = new TimeSpan(20, 0, 0)
             });
             
+            
+            // Add opening hours for Buffet mode
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Buffet",
+                Day = "Monday",
+                StartTime = new TimeSpan(11, 30, 0),
+                EndTime = new TimeSpan(14, 30, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Buffet",
+                Day = "Tuesday",
+                StartTime = new TimeSpan(11, 30, 0),
+                EndTime = new TimeSpan(14, 30, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Buffet",
+                Day = "Wednesday",
+                StartTime = new TimeSpan(11, 30, 0),
+                EndTime = new TimeSpan(14, 30, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Buffet",
+                Day = "Thursday",
+                StartTime = new TimeSpan(11, 30, 0),
+                EndTime = new TimeSpan(14, 30, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Buffet",
+                Day = "Friday",
+                StartTime = new TimeSpan(11, 30, 0),
+                EndTime = new TimeSpan(14, 30, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Buffet",
+                Day = "Saturday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(15, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Buffet",
+                Day = "Sunday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(15, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Buffet",
+                Day = "Holiday"
+            });
+            
             context.OpeningHours.Add(new OpeningHours
             {
                 ResturantId = restaurant.Id,
@@ -163,6 +235,79 @@ public class ApplicationDbContextSeed
                 Day = "Holiday"
             });
             
+            // Add opening hours for Special Events mode
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Special Events",
+                Day = "Monday",
+                StartTime = new TimeSpan(18, 0, 0),
+                EndTime = new TimeSpan(23, 0, 0)
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Special Events",
+                Day = "Tuesday",
+                StartTime = new TimeSpan(18, 0, 0),
+                EndTime = new TimeSpan(23, 0, 0)
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Special Events",
+                Day = "Wednesday",
+                StartTime = new TimeSpan(18, 0, 0),
+                EndTime = new TimeSpan(23, 0, 0)
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Special Events",
+                Day = "Thursday",
+                StartTime = new TimeSpan(18, 0, 0),
+                EndTime = new TimeSpan(23, 0, 0)
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Special Events",
+                Day = "Friday",
+                StartTime = new TimeSpan(18, 0, 0),
+                EndTime = new TimeSpan(23, 59, 0)
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Special Events",
+                Day = "Saturday",
+                StartTime = new TimeSpan(18, 0, 0),
+                EndTime = new TimeSpan(23, 59, 0)
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Special Events",
+                Day = "Sunday",
+                StartTime = new TimeSpan(18, 0, 0),
+                EndTime = new TimeSpan(22, 0, 0)
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant.Id,
+                Mode = "Special Events",
+                Day = "Holiday"
+            });            
+            
+            
+            //add images for gallery
             context.GalleryImages.Add(new GalleryImage
             {
                 ResturantId = restaurant.Id,
