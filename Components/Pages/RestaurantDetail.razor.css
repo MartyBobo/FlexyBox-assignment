@@ -70,6 +70,19 @@
     text-align: center;
 }
 
+.contact-icon-custom {
+    width: 20px;
+    height: 20px;
+    margin-right: 8px;
+    vertical-align: middle;
+    object-fit: contain;
+}
+
+/* Optional: Add hover effects */
+.contact-item:hover .contact-icon-custom {
+    opacity: 0.8;
+}
+
 .gallery-container {
     width: 100%;
     margin-bottom: 24px;
