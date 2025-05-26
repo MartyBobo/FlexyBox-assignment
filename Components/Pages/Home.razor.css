@@ -1,0 +1,51 @@
+.container {
+    padding: 20px;
+}
+
+h1 {
+    margin-bottom: 20px;
+}
+
+.restaurant-list {
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.restaurant-card {
+    display: block;
+    padding: 16px;
+    background-color: #fff;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.restaurant-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.restaurant-info h2 {
+    margin: 0 0 8px 0;
+    font-size: 20px;
+}
+
+.address {
+    color: #666;
+    margin-bottom: 8px;
+}
+
+.status {
+    font-size: 14px;
+}
+
+.status.open {
+    color: #4CAF50;
+}
+
+.status.closed {
+    color: #F44336;
+}

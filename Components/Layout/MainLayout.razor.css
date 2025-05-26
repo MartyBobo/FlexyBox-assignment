@@ -2,39 +2,82 @@
     position: relative;
     display: flex;
     flex-direction: column;
+    min-height: 100vh;
 }
 
 main {
     flex: 1;
+    padding-bottom: 70px; /* Space for footer */
+    padding-top: 60px; /* Space for header */
 }
 
-.sidebar {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
-}
-
-.top-row {
-    background-color: #f7f7f7;
-    border-bottom: 1px solid #d6d5d5;
-    justify-content: flex-end;
-    height: 3.5rem;
+.app-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    background-color: #9c27b0;
+    color: white;
+    height: 60px;
     display: flex;
+    justify-content: space-between;
     align-items: center;
+    padding: 0 16px;
+    z-index: 100;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
 }
 
-    .top-row ::deep a, .top-row ::deep .btn-link {
-        white-space: nowrap;
-        margin-left: 1.5rem;
-        text-decoration: none;
-    }
+.app-title {
+    font-size: 20px;
+    font-weight: bold;
+}
 
-    .top-row ::deep a:hover, .top-row ::deep .btn-link:hover {
-        text-decoration: underline;
-    }
+.app-nav {
+    display: flex;
+}
 
-    .top-row ::deep a:first-child {
-        overflow: hidden;
-        text-overflow: ellipsis;
-    }
+.nav-icon {
+    color: white;
+    font-size: 20px;
+    margin-left: 16px;
+    text-decoration: none;
+}
+
+.content {
+    padding-bottom: 20px;
+}
+
+.app-footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background-color: white;
+    height: 70px;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    border-top: 1px solid #eee;
+    z-index: 100;
+}
+
+.footer-icon {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    color: #666;
+    text-decoration: none;
+    font-size: 24px;
+}
+
+.footer-icon div {
+    font-size: 12px;
+    margin-top: 4px;
+}
+
+.footer-icon.active {
+    color: #9c27b0;
+}
 
 @media (max-width: 640.98px) {
     .top-row {

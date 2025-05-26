@@ -1,19 +1,39 @@
 ﻿@inherits LayoutComponentBase
 
 <div class="page">
-    <div class="sidebar">
-        <NavMenu/>
-    </div>
+    <header class="app-header">
+        <div class="app-title">FlexyBox</div>
+        <div class="app-nav">
+            <a href="/" class="nav-icon">
+                <span class="oi oi-home"></span>
+            </a>
+        </div>
+    </header>
 
     <main>
-        <div class="top-row px-4">
-            <a href="https://learn.microsoft.com/aspnet/core/" target="_blank">About</a>
-        </div>
-
-        <article class="content px-4">
+        <div class="content">
             @Body
-        </article>
+        </div>
     </main>
+
+    <footer class="app-footer">
+        <a href="/" class="footer-icon @(IsActive("/") ? "active" : "")">
+            <span class="oi oi-home"></span>
+            <div>Home</div>
+        </a>
+        <a href="/search" class="footer-icon @(IsActive("/search") ? "active" : "")">
+            <span class="oi oi-magnifying-glass"></span>
+            <div>Search</div>
+        </a>
+        <a href="/favorites" class="footer-icon @(IsActive("/favorites") ? "active" : "")">
+            <span class="oi oi-heart"></span>
+            <div>Favorites</div>
+        </a>
+        <a href="/profile" class="footer-icon @(IsActive("/profile") ? "active" : "")">
+            <span class="oi oi-person"></span>
+            <div>Profile</div>
+        </a>
+    </footer>
 </div>
 
 <div id="blazor-error-ui" data-nosnippet>
@@ -21,3 +41,19 @@
     <a href="." class="reload">Reload</a>
     <span class="dismiss">🗙</span>
 </div>
+
+@code {
+    [Inject]
+    private NavigationManager NavigationManager { get; set; }
+
+    private bool IsActive(string href)
+    {
+        var currentUri = NavigationManager.Uri;
+        var relativePath = NavigationManager.ToBaseRelativePath(currentUri);
+        
+        if (string.IsNullOrEmpty(relativePath) && href == "/")
+            return true;
+            
+        return relativePath.StartsWith(href.TrimStart('/'));
+    }
+}

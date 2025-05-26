@@ -1,0 +1,198 @@
+.restaurant-detail {
+    padding: 16px;
+    max-width: 100%;
+}
+
+.restaurant-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 16px;
+}
+
+.restaurant-title h1 {
+    margin: 0;
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.restaurant-status {
+    margin-top: 4px;
+    font-size: 14px;
+}
+
+.restaurant-status.open {
+    color: #4CAF50;
+}
+
+.restaurant-status.closed {
+    color: #F44336;
+}
+
+.restaurant-address {
+    margin-top: 8px;
+    color: #666;
+    font-size: 14px;
+}
+
+.restaurant-favorite button {
+    background: none;
+    border: none;
+    font-size: 24px;
+    color: #ccc;
+    cursor: pointer;
+}
+
+.restaurant-favorite button:hover {
+    color: #ff4081;
+}
+
+.restaurant-favorite button.active {
+    color: #ff4081;
+}
+
+.restaurant-contact {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-bottom: 20px;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.contact-icon {
+    color: #666;
+    width: 24px;
+    text-align: center;
+}
+
+.gallery-container {
+    width: 100%;
+    margin-bottom: 24px;
+    position: relative;
+    overflow: hidden;
+}
+
+.gallery-scroller {
+    display: flex;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scroll-snap-type: x mandatory;
+    gap: 12px;
+    padding: 8px 0;
+}
+
+.gallery-image {
+    flex: 0 0 auto;
+    width: 280px;
+    height: 180px;
+    border-radius: 12px;
+    overflow: hidden;
+    scroll-snap-align: start;
+    position: relative;
+}
+
+.gallery-image img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.opening-hours-section {
+    margin-top: 24px;
+}
+
+.opening-hours-section h2 {
+    font-size: 20px;
+    margin-bottom: 16px;
+}
+
+.hours-filter {
+    display: flex;
+    overflow-x: auto;
+    gap: 8px;
+    margin-bottom: 16px;
+    padding-bottom: 8px;
+    -webkit-overflow-scrolling: touch;
+    touch-action: manipulation;
+}
+
+.hours-filter-button {
+    background-color: #f0f0f0;
+    border: none;
+    border-radius: 20px;
+    padding: 8px 16px;
+    font-size: 14px;
+    white-space: nowrap;
+    cursor: pointer;
+    pointer-events: auto !important;
+    user-select: none;
+    position: relative;
+    z-index: 10;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(0,0,0,0.1);
+}
+
+.hours-filter-button.active {
+    background-color: #9c27b0;
+    color: white;
+}
+
+.hours-filter-button:hover {
+    background-color: #e0e0e0;
+    transform: scale(1.02);
+    transition: all 0.2s ease;
+}
+
+.hours-filter-button.active:hover {
+    background-color: #7b1fa2;
+}
+
+.hours-list {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.hours-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid #eee;
+}
+
+.day-name {
+    font-weight: 500;
+}
+
+.hours-time {
+    color: #444;
+}
+
+.debug-info {
+    background-color: #ffefdb;
+    border: 1px dashed #ffaa00;
+    padding: 4px 8px;
+    margin-bottom: 10px;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+.status-message {
+    background-color: #e8f5e9;
+    border-left: 4px solid #4CAF50;
+    padding: 8px 12px;
+    margin-bottom: 16px;
+    font-size: 14px;
+    color: #2e7d32;
+}
+
+.status-message.error {
+    background-color: #ffebee;
+    border-left-color: #F44336;
+    color: #c62828;
+}

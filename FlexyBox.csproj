@@ -2,9 +2,7 @@
         <TargetFramework>net9.0</TargetFramework>
         <Nullable>enable</Nullable>
         <ImplicitUsings>enable</ImplicitUsings>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
-        <GenerateTargetFrameworkAttribute>false</GenerateTargetFrameworkAttribute>
-    </PropertyGroup>    <ItemGroup>
+    </PropertyGroup><ItemGroup>
       <ProjectReference Include="Application\Application.csproj" />
       <ProjectReference Include="Infrastructure\Infrastructure.csproj" />
     </ItemGroup>

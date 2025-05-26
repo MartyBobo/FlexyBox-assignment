@@ -1,0 +1,232 @@
+@page "/restaurant/{Id:int}"
+@rendermode InteractiveServer
+@using Application.Resturants.Queries
+@using Application.DTOs
+@using MediatR
+@inject IMediator Mediator
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
+<div class="restaurant-detail">
+    @if (Restaurant == null)
+    {
+        <div>Loading...</div>
+    }
+    else
+    {
+        <div class="restaurant-header">
+            <div class="restaurant-title">
+                <h1>@Restaurant.Name</h1>
+                <div class="restaurant-status @(Restaurant.IsOpen ? "open" : "closed")">
+                    • @(Restaurant.IsOpen ? "Open" : "Closed")
+                </div>
+                <div class="restaurant-address">
+                    <span>@Restaurant.Address</span>
+                </div>
+            </div>
+            <div class="restaurant-favorite">
+                <button class="favorite-button">
+                    <span class="oi oi-heart"></span>
+                </button>
+            </div>
+        </div>
+
+        <div class="restaurant-contact">
+            <div class="contact-item">
+                <i class="contact-icon oi oi-phone"></i>
+                <span>@Restaurant.Phone</span>
+            </div>
+            <div class="contact-item">
+                <i class="contact-icon oi oi-envelope-closed"></i>
+                <span>@Restaurant.Email</span>
+            </div>
+        </div>
+
+        <div class="gallery-container">
+            <div class="gallery-scroller">
+                @if (Restaurant.GalleryImages != null)
+                {
+                    @foreach (var imageUrl in Restaurant.GalleryImages)
+                    {
+                        <div class="gallery-image">
+                            <img src="@imageUrl" alt="Restaurant image" />
+                        </div>
+                    }                }
+                else
+                {
+                    <p>No images available.</p>
+                }
+            </div>
+        </div>
+
+        <div class="opening-hours-section">
+            <h2>Opening hours</h2>
+            @if (Restaurant.OpeningHours != null && Restaurant.OpeningHours.Any())
+            {                <div class="hours-filter">
+                    @foreach (var mode in Restaurant.OpeningHours.Keys)
+                    {
+                        var isActive = SelectedMode == mode;
+                        <button type="button"
+                                class="hours-filter-button @(isActive ? "active" : "")"
+                                @onclick="@(async () => await HandleModeSelection(mode))">
+                            @mode
+                        </button>
+                    }
+                </div>
+
+                @if (!string.IsNullOrEmpty(SelectedMode) && Restaurant.OpeningHours.TryGetValue(SelectedMode, out var hoursForMode))
+                {
+                    <div class="hours-list">
+                        <div class="status-message">Showing hours for: @SelectedMode</div>
+                        @foreach (var entry in hoursForMode)
+                        {
+                            <div class="hours-item">
+                                <span class="day-name">@entry.Day</span>
+                                <span class="hours-time">@entry.Time</span>
+                            </div>
+                        }
+                    </div>
+                }
+                else if (!string.IsNullOrEmpty(SelectedMode))
+                {
+                    <div class="status-message">No opening hours found for @SelectedMode.</div>
+                }
+            }
+            else
+            {
+                <p>No opening hours available for this restaurant.</p>
+            }
+        </div>
+
+        <div class="restaurant-actions">
+            <button class="action-button primary">Book a Table</button>
+            <button class="action-button secondary">Order Online</button>
+        </div>        <div class="debug-controls" style="margin-top: 20px; padding: 10px; border: 1px dashed #ccc;">
+            <h4>Debug Controls</h4>
+            <button @onclick="@(async () => await DebugButtonTest())" class="btn btn-warning">Test JS Alert</button>
+            <button @onclick="@(async () => await ForceReload())" class="btn btn-info">Force Reload Data</button>
+        </div>
+    }
+</div>
+
+@code {
+    [Parameter]
+    public int Id { get; set; }
+
+    private ResturantDto? Restaurant { get; set; }
+    private string? SelectedMode { get; set; }
+    private string? _lastButtonClickedMode; // For debugging
+    private DateTime _lastUiUpdateTimestamp; // For debugging UI updates
+
+    protected override async Task OnInitializedAsync()
+    {
+        Console.WriteLine($"RestaurantDetail (Id: {Id}): OnInitializedAsync started.");
+        await LoadRestaurant();
+        Console.WriteLine($"RestaurantDetail (Id: {Id}): OnInitializedAsync finished.");
+    }
+
+    protected override async Task OnParametersSetAsync()
+    {
+        Console.WriteLine($"RestaurantDetail (Id: {Id}): OnParametersSetAsync started. Current Restaurant ID: {Restaurant?.Id}");
+        // This ensures data reloads if the Id parameter changes while on the same component instance
+        // and avoids reloading if it's the initial load already handled by OnInitializedAsync
+        // or if the ID hasn't actually changed.
+        if (Restaurant == null || Restaurant.Id != Id)
+        {
+            Console.WriteLine($"RestaurantDetail (Id: {Id}): Id changed or restaurant not loaded. Calling LoadRestaurant.");
+            await LoadRestaurant();
+        }
+        Console.WriteLine($"RestaurantDetail (Id: {Id}): OnParametersSetAsync finished.");
+    }
+
+    private async Task LoadRestaurant()
+    {
+        Console.WriteLine($"RestaurantDetail (Id: {Id}): LoadRestaurant called.");
+        try
+        {
+            var query = new GetResturantByIdQuery { Id = Id };
+            Restaurant = await Mediator.Send(query);
+
+            if (Restaurant == null)
+            {
+                Console.WriteLine($"RestaurantDetail (Id: {Id}): Restaurant not found. Navigating to /");
+                NavigationManager.NavigateTo("/"); // Consider a "not found" page
+                return;
+            }
+            Console.WriteLine($"RestaurantDetail (Id: {Id}): Restaurant '{Restaurant.Name}' loaded successfully.");
+            Console.WriteLine($"RestaurantDetail (Id: {Id}): Opening Hours Keys: {(Restaurant.OpeningHours != null ? string.Join(", ", Restaurant.OpeningHours.Keys) : "null or empty")}");
+
+
+            if (Restaurant.OpeningHours != null && Restaurant.OpeningHours.Any())
+            {
+                // Set initial SelectedMode only if it's not already set or if the available modes changed.
+                // This avoids resetting user selection if LoadRestaurant is called for other reasons.
+                var firstMode = Restaurant.OpeningHours.Keys.First();
+                if (SelectedMode == null || !Restaurant.OpeningHours.ContainsKey(SelectedMode))
+                {
+                    SelectedMode = firstMode;
+                    Console.WriteLine($"RestaurantDetail (Id: {Id}): Initial SelectedMode set to '{SelectedMode}'.");
+                }
+                else
+                {
+                    Console.WriteLine($"RestaurantDetail (Id: {Id}): SelectedMode already '{SelectedMode}', retaining.");
+                }
+            }
+            else
+            {
+                SelectedMode = null; // No modes available
+                Console.WriteLine($"RestaurantDetail (Id: {Id}): No opening hours found. SelectedMode cleared.");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"RestaurantDetail (Id: {Id}): Error in LoadRestaurant: {ex.Message}");
+            // Optionally, set an error message property to display in the UI
+        }
+        _lastUiUpdateTimestamp = DateTime.Now;
+        // StateHasChanged(); // Generally not needed here as Blazor handles rendering after lifecycle methods.
+                           // If issues persist, this can be a point of investigation.
+    }
+
+    private async Task HandleModeSelection(string mode)
+    {
+        _lastButtonClickedMode = $"{mode} at {DateTime.Now:HH:mm:ss.fff}";
+        Console.WriteLine($"RestaurantDetail (Id: {Id}): HandleModeSelection called with mode: '{mode}'. Current SelectedMode: '{SelectedMode}'");
+        
+        // JavaScript alert for immediate feedback
+        await JSRuntime.InvokeVoidAsync("alert", $"Attempting to select mode: {mode}");
+
+        SelectedMode = mode;
+        Console.WriteLine($"RestaurantDetail (Id: {Id}): SelectedMode changed to: '{SelectedMode}'");
+        
+        _lastUiUpdateTimestamp = DateTime.Now;
+        // Explicitly call StateHasChanged to ensure UI updates.
+        // Using InvokeAsync is safer if any part of this method (or methods it calls)
+        // might not be on the Blazor synchronization context, though for direct @onclick it usually is.
+        await InvokeAsync(StateHasChanged);
+        Console.WriteLine($"RestaurantDetail (Id: {Id}): StateHasChanged invoked after mode selection.");
+    }
+
+    private async Task DebugButtonTest()
+    {
+        Console.WriteLine($"RestaurantDetail (Id: {Id}): DebugButtonTest clicked!");
+        await JSRuntime.InvokeVoidAsync("alert", "Debug JS Alert button works!");
+        _lastUiUpdateTimestamp = DateTime.Now;
+        StateHasChanged(); // Or await InvokeAsync(StateHasChanged);
+    }
+
+    private async Task ForceReload()
+    {
+        Console.WriteLine($"RestaurantDetail (Id: {Id}): ForceReload called by button.");
+        SelectedMode = null; // Reset selected mode to ensure it's re-evaluated
+        await LoadRestaurant();
+        await JSRuntime.InvokeVoidAsync("alert", "Force reload completed. Check console for details.");
+        _lastUiUpdateTimestamp = DateTime.Now;
+        // StateHasChanged(); // LoadRestaurant should trigger this if data changes,
+                           // but can be added if UI doesn't refresh.
+                           // Since LoadRestaurant now also sets _lastUiUpdateTimestamp and might call StateHasChanged implicitly
+                           // or explicitly if needed, this might be redundant.
+                           // Forcing it here to be sure after a manual action.
+        await InvokeAsync(StateHasChanged);
+    }
+}

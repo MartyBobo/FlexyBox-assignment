@@ -1,7 +1,46 @@
 ﻿@page "/"
+@using Application.Interfaces
+@using Microsoft.EntityFrameworkCore
+@using Domain.Entities
+@inject IApplicationDbContext DbContext
 
-<PageTitle>Home</PageTitle>
+<PageTitle>FlexyBox - Restaurants</PageTitle>
 
-<h1>Hello, world!</h1>
+<div class="container">
+    <h1>Restaurants</h1>
 
-Welcome to your new app.
+    @if (restaurants == null)
+    {
+        <p>Loading...</p>
+    }
+    else if (!restaurants.Any())
+    {
+        <p>No restaurants found.</p>
+    }
+    else
+    {
+        <div class="restaurant-list">
+            @foreach (var restaurant in restaurants)
+            {
+                <a href="/restaurant/@restaurant.Id" class="restaurant-card">
+                    <div class="restaurant-info">
+                        <h2>@restaurant.Name</h2>
+                        <p class="address">@restaurant.Address</p>
+                        <span class="status @(restaurant.IsOpen ? "open" : "closed")">
+                            • @(restaurant.IsOpen ? "Open" : "Closed")
+                        </span>
+                    </div>
+                </a>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<Resturant> restaurants;
+
+    protected override async Task OnInitializedAsync()
+    {
+        restaurants = await DbContext.Resturants.ToListAsync();
+    }
+}
