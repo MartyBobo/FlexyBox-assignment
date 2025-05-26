@@ -1,8 +1,7 @@
 ﻿@page "/"
-@using Application.Interfaces
-@using Microsoft.EntityFrameworkCore
-@using Domain.Entities
-@inject IApplicationDbContext DbContext
+@using Application.DTOs
+@using FlexyBox.Services
+@inject IRestaurantService RestaurantService
 
 <PageTitle>FlexyBox - Restaurants</PageTitle>
 
@@ -37,10 +36,8 @@
 </div>
 
 @code {
-    private List<Resturant> restaurants;
-
-    protected override async Task OnInitializedAsync()
+    private List<ResturantDto> restaurants;    protected override async Task OnInitializedAsync()
     {
-        restaurants = await DbContext.Resturants.ToListAsync();
+        restaurants = await RestaurantService.GetAllRestaurantsAsync();
     }
 }

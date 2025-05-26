@@ -28,16 +28,14 @@ public class SearchRestaurantsQueryHandler : IRequestHandler<SearchRestaurantsQu
             .Include(r => r.GalleryImages)
             .Where(r => r.Name.ToLower().Contains(searchTerm) || 
                        r.Address.ToLower().Contains(searchTerm))
-            .ToListAsync(cancellationToken);
-
-        var result = restaurants.Select(resturant => new ResturantDto
+            .ToListAsync(cancellationToken);        var result = restaurants.Select(resturant => new ResturantDto
         {
             Id = resturant.Id,
             Name = resturant.Name,
             Address = resturant.Address,
             Phone = resturant.Phone,
             Email = resturant.Email,
-            IsOpen = resturant.IsOpen,
+            _rawOpeningHours = resturant.OpeningHours,
             OpeningHours = resturant.OpeningHours
                 .GroupBy(oh => oh.Mode)
                 .ToDictionary(

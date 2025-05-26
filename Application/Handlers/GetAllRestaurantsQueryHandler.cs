@@ -6,25 +6,23 @@ using Microsoft.EntityFrameworkCore;
 
 namespace Application.Handlers;
 
-public class GetFavoritesByUserQueryHandler : IRequestHandler<GetFavoritesByUserQuery, List<ResturantDto>>
+public class GetAllRestaurantsQueryHandler : IRequestHandler<GetAllRestaurantsQuery, List<ResturantDto>>
 {
     private readonly IApplicationDbContext _context;
 
-    public GetFavoritesByUserQueryHandler(IApplicationDbContext context)
+    public GetAllRestaurantsQueryHandler(IApplicationDbContext context)
     {
         _context = context;
     }
 
-    public async Task<List<ResturantDto>> Handle(GetFavoritesByUserQuery request, CancellationToken cancellationToken)
+    public async Task<List<ResturantDto>> Handle(GetAllRestaurantsQuery request, CancellationToken cancellationToken)
     {
-        var favorites = await _context.Favorites
-            .Where(f => f.UserId == request.UserId)
-            .Include(f => f.Restaurant)
-                .ThenInclude(r => r.OpeningHours)
-            .Include(f => f.Restaurant)
-                .ThenInclude(r => r.GalleryImages)
-            .Select(f => f.Restaurant)
-            .ToListAsync(cancellationToken);        var result = favorites.Select(restaurant => new ResturantDto
+        var restaurants = await _context.Resturants
+            .Include(r => r.OpeningHours)
+            .Include(r => r.GalleryImages)
+            .ToListAsync(cancellationToken);
+
+        var result = restaurants.Select(restaurant => new ResturantDto
         {
             Id = restaurant.Id,
             Name = restaurant.Name,

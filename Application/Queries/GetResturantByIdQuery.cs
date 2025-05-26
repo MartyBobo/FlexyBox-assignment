@@ -30,16 +30,14 @@ namespace Application.Resturants.Queries
                 if (resturant == null)
                 {
                     return null;
-                }
-
-                var resturantDto = new ResturantDto
+                }                var resturantDto = new ResturantDto
                 {
                     Id = resturant.Id,
                     Name = resturant.Name,
                     Address = resturant.Address,
                     Phone = resturant.Phone,
                     Email = resturant.Email,
-                    IsOpen = resturant.IsOpen
+                    _rawOpeningHours = resturant.OpeningHours
                 };
 
                 resturantDto.OpeningHours = resturant.OpeningHours

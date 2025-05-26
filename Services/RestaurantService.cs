@@ -87,4 +87,19 @@ public class RestaurantService : IRestaurantService
             throw new Exception($"Error retrieving favorites for user {_currentUser.UserId}", ex);
         }
     }
+
+    public async Task<List<ResturantDto>> GetAllRestaurantsAsync()
+    {
+        try
+        {
+            var query = new GetAllRestaurantsQuery();
+            var restaurants = await _mediator.Send(query);
+            return restaurants;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            throw new Exception("Error retrieving all restaurants", ex);
+        }
+    }
 }

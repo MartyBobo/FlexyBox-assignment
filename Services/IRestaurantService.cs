@@ -4,6 +4,7 @@ namespace FlexyBox.Services;
 
 public interface IRestaurantService
 {
+    Task<List<ResturantDto>> GetAllRestaurantsAsync();
     Task<ResturantDto?> GetRestaurantAsync(int id);
     Task<bool> ToggleFavoriteAsync(int id);
     Task<bool> IsFavoriteAsync(int id);
