@@ -43,6 +43,12 @@ main {
     text-decoration: none;
 }
 
+.nav-icon-img {
+    width: 24px;
+    height: 24px;
+    filter: brightness(0) invert(1); /* Makes icons white */
+}
+
 .content {
     padding-bottom: 20px;
 }
@@ -70,6 +76,13 @@ main {
     font-size: 24px;
 }
 
+.footer-icon-img {
+    width: 24px;
+    height: 24px;
+    opacity: 0.6;
+    transition: opacity 0.2s ease;
+}
+
 .footer-icon div {
     font-size: 12px;
     margin-top: 4px;
@@ -77,6 +90,15 @@ main {
 
 .footer-icon.active {
     color: #9c27b0;
+}
+
+.footer-icon.active .footer-icon-img {
+    opacity: 1;
+    filter: hue-rotate(280deg) saturate(2); /* Purple tint for active icons */
+}
+
+.footer-icon:hover .footer-icon-img {
+    opacity: 0.8;
 }
 
 @media (max-width: 640.98px) {

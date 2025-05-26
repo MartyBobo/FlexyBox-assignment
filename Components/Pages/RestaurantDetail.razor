@@ -1,9 +1,8 @@
 @page "/restaurant/{Id:int}"
 @rendermode InteractiveServer
-@using Application.Resturants.Queries
 @using Application.DTOs
-@using MediatR
-@inject IMediator Mediator
+@using FlexyBox.Services
+@inject IRestaurantService RestaurantService
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
@@ -23,19 +22,18 @@
                 <div class="restaurant-address">
                     <span>@Restaurant.Address</span>
                 </div>
-            </div>
-            <div class="restaurant-favorite">
+            </div>            <div class="restaurant-favorite">
                 <button class="favorite-button">
-                    <span class="oi oi-heart"></span>
+                    <img src="/images/icons/heart-icon.svg" alt="Favorite" class="heart-icon" />
                 </button>
             </div>
         </div>        <div class="restaurant-contact">
             <div class="contact-item">
-                <img src="/images/icons/phone-icon.png" alt="Phone" class="contact-icon-custom" />
+                <img src="/images/icons/phone-icon.svg" alt="Phone" class="contact-icon-custom" />
                 <span>@Restaurant.Phone</span>
             </div>
             <div class="contact-item">
-                <img src="/images/icons/email-icon.png" alt="Email" class="contact-icon-custom" />
+                <img src="/images/icons/email-icon.svg" alt="Email" class="contact-icon-custom" />
                 <span>@Restaurant.Email</span>
             </div>
         </div>
@@ -89,16 +87,11 @@
                 {
                     <div class="status-message">No opening hours found for @SelectedMode.</div>
                 }
-            }
-            else
+            }            else
             {
                 <p>No opening hours available for this restaurant.</p>
             }
-        </div>        <div class="restaurant-actions">
-            <button class="action-button primary">Book a Table</button>
-            <button class="action-button secondary">Order Online</button>
-        </div>
-    }
+        </div>    }
 </div>
 
 @code {
@@ -117,11 +110,9 @@
             await LoadRestaurant();
         }
     }    private async Task LoadRestaurant()
-    {
-        try
+    {        try
         {
-            var query = new GetResturantByIdQuery { Id = Id };
-            Restaurant = await Mediator.Send(query);
+            Restaurant = await RestaurantService.GetRestaurantAsync(Id);
 
             if (Restaurant == null)
             {

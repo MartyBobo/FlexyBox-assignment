@@ -1,5 +1,6 @@
 using Application.Interfaces;
 using FlexyBox.Components;
+using FlexyBox.Services;
 using Microsoft.EntityFrameworkCore;
 using MyApp.Server.Infrastructure.Data;
 
@@ -9,10 +10,13 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
-// Register MediatR
+// Register MediatR (still needed for service layer)
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(Application.Resturants.Queries.GetResturantByIdQuery).Assembly);
 });
+
+// Register restaurant service
+builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 
 // Register ApplicationDbContext and IApplicationDbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
@@ -56,7 +60,6 @@ if (!app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
-
 
 app.UseAntiforgery();
 

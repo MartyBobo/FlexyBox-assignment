@@ -1,11 +1,10 @@
 ﻿@inherits LayoutComponentBase
 
-<div class="page">
-    <header class="app-header">
+<div class="page">    <header class="app-header">
         <div class="app-title">FlexyBox</div>
         <div class="app-nav">
             <a href="/" class="nav-icon">
-                <span class="oi oi-home"></span>
+                <img src="/images/icons/home-icon.svg" alt="Home" class="nav-icon-img" />
             </a>
         </div>
     </header>
@@ -14,23 +13,21 @@
         <div class="content">
             @Body
         </div>
-    </main>
-
-    <footer class="app-footer">
+    </main>    <footer class="app-footer">
         <a href="/" class="footer-icon @(IsActive("/") ? "active" : "")">
-            <span class="oi oi-home"></span>
+            <img src="/images/icons/home-icon.svg" alt="Home" class="footer-icon-img" />
             <div>Home</div>
         </a>
         <a href="/search" class="footer-icon @(IsActive("/search") ? "active" : "")">
-            <span class="oi oi-magnifying-glass"></span>
+            <img src="/images/icons/search-icon.svg" alt="Search" class="footer-icon-img" />
             <div>Search</div>
         </a>
         <a href="/favorites" class="footer-icon @(IsActive("/favorites") ? "active" : "")">
-            <span class="oi oi-heart"></span>
+            <img src="/images/icons/heart-icon.svg" alt="Favorites" class="footer-icon-img" />
             <div>Favorites</div>
         </a>
         <a href="/profile" class="footer-icon @(IsActive("/profile") ? "active" : "")">
-            <span class="oi oi-person"></span>
+            <img src="/images/icons/profile-icon.svg" alt="Profile" class="footer-icon-img" />
             <div>Profile</div>
         </a>
     </footer>

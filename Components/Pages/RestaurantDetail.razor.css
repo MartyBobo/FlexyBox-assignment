@@ -38,17 +38,23 @@
 .restaurant-favorite button {
     background: none;
     border: none;
-    font-size: 24px;
-    color: #ccc;
     cursor: pointer;
+    padding: 4px;
 }
 
-.restaurant-favorite button:hover {
-    color: #ff4081;
+.heart-icon {
+    width: 24px;
+    height: 24px;
+    opacity: 0.5;
+    transition: opacity 0.2s ease;
 }
 
-.restaurant-favorite button.active {
-    color: #ff4081;
+.restaurant-favorite button:hover .heart-icon {
+    opacity: 1;
+}
+
+.restaurant-favorite button.active .heart-icon {
+    opacity: 1;
 }
 
 .restaurant-contact {
