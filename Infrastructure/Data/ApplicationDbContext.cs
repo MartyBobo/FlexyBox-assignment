@@ -11,10 +11,12 @@ namespace MyApp.Server.Infrastructure.Data
         : DbContext, IApplicationDbContext
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
-            : base(options) { }        public DbSet<Resturant> Resturants    { get; set; } = null!;
+            : base(options) { }        
+        public DbSet<Resturant> Resturants    { get; set; } = null!;
         public DbSet<OpeningHours> OpeningHours  { get; set; } = null!;
         public DbSet<GalleryImage> GalleryImages { get; set; } = null!;
         public DbSet<Favorite> Favorites { get; set; } = null!;
+        public DbSet<User> Users { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -47,6 +49,30 @@ namespace MyApp.Server.Infrastructure.Data
                 .HasOne(f => f.Restaurant)
                 .WithMany()
                 .HasForeignKey(f => f.RestaurantId);
+
+            // User entity configuration
+            builder.Entity<User>()
+                .ToTable("Users")
+                .HasKey(u => u.Id);
+
+            builder.Entity<User>()
+                .HasMany(u => u.Favorites)
+                .WithOne()
+                .HasForeignKey(f => f.UserId);
+
+            builder.Entity<User>()
+                .Property(u => u.Name)
+                .IsRequired()
+                .HasMaxLength(100);
+
+            builder.Entity<User>()
+                .Property(u => u.Email)
+                .IsRequired()
+                .HasMaxLength(255);
+
+            builder.Entity<User>()
+                .HasIndex(u => u.Email)
+                .IsUnique();
         }
     }
 }

@@ -7,6 +7,24 @@ public class DataSeeder
 {
     public static async Task SeedSampleDataAsync(ApplicationDbContext context)
     {
+        // Seed default user if no users exist
+        if (!context.Users.Any())
+        {
+            var defaultUser = new User
+            {
+                Id = 1,
+                Name = "Default User",
+                Email = "user@flexybox.com",
+                Phone = "+45 12 34 56 78",
+                Address = "Copenhagen, Denmark",
+                CreatedAt = DateTime.UtcNow,
+                UpdatedAt = DateTime.UtcNow
+            };
+
+            context.Users.Add(defaultUser);
+            await context.SaveChangesAsync();
+        }
+
         // Only seed if no restaurants exist
         if (!context.Resturants.Any())
         {

@@ -1,0 +1,135 @@
+@page "/profile"
+@rendermode InteractiveServer
+@using Application.DTOs
+@using FlexyBox.Services
+@using System.ComponentModel.DataAnnotations
+@inject IUserService UserService
+@inject IJSRuntime JSRuntime
+
+<div class="profile-page">
+    <div class="profile-header">
+        <h1>My Profile</h1>
+        <div class="profile-subtitle">Manage your account information</div>
+    </div>
+
+    @if (IsLoading)
+    {
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <div class="loading-text">Loading your profile...</div>
+        </div>
+    }
+    else if (UserProfile != null)
+    {
+        <div class="profile-form-container">
+            <EditForm Model="UserProfile" OnValidSubmit="SaveProfile" class="profile-form">
+                <DataAnnotationsValidator />
+                
+                <div class="form-section">
+                    <h3>Personal Information</h3>
+                    
+                    <div class="form-group">
+                        <label for="name">Full Name</label>                        <InputText id="name" @bind-Value="UserProfile.Name" class="form-input" placeholder="Enter your full name" />
+                        <ValidationMessage For="@(() => UserProfile.Name)" class="validation-error" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="email">Email Address</label>                        <InputText id="email" @bind-Value="UserProfile.Email" class="form-input" placeholder="Enter your email address" type="email" />
+                        <ValidationMessage For="@(() => UserProfile.Email)" class="validation-error" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="phone">Phone Number</label>                        <InputText id="phone" @bind-Value="UserProfile.Phone" class="form-input" placeholder="Enter your phone number (optional)" />
+                        <ValidationMessage For="@(() => UserProfile.Phone)" class="validation-error" />
+                    </div>
+
+                    <div class="form-group">
+                        <label for="address">Address</label>                        <InputText id="address" @bind-Value="UserProfile.Address" class="form-input" placeholder="Enter your address (optional)" />
+                        <ValidationMessage For="@(() => UserProfile.Address)" class="validation-error" />
+                    </div>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="save-button" disabled="@IsSaving">
+                        @if (IsSaving)
+                        {
+                            <span class="save-spinner"></span>
+                            <span>Saving...</span>
+                        }
+                        else
+                        {
+                            <span>Save Changes</span>
+                        }
+                    </button>
+                </div>
+            </EditForm>
+        </div>
+    }
+    else
+    {
+        <div class="error-state">
+            <div class="error-icon">⚠️</div>
+            <h3>Error Loading Profile</h3>
+            <p>We couldn't load your profile information. Please try refreshing the page.</p>
+            <button @onclick="LoadProfile" class="retry-button">Try Again</button>
+        </div>
+    }
+</div>
+
+@code {
+    private UserDto? UserProfile;
+    private bool IsLoading = true;
+    private bool IsSaving = false;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadProfile();
+    }
+
+    private async Task LoadProfile()
+    {
+        try
+        {
+            IsLoading = true;
+            StateHasChanged();
+            
+            UserProfile = await UserService.GetProfileAsync();
+        }
+        catch (Exception ex)
+        {            // Handle error - for now just set null profile
+            UserProfile = null;
+            // TODO: Log error
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task SaveProfile()
+    {
+        if (UserProfile == null) return;
+
+        try
+        {
+            IsSaving = true;
+            StateHasChanged();
+
+            await UserService.UpdateProfileAsync(UserProfile);
+            
+            // Show success notification
+            await JSRuntime.InvokeVoidAsync("showToast", "Profile updated successfully!", "success");
+        }
+        catch (Exception ex)
+        {
+            // Show error notification
+            await JSRuntime.InvokeVoidAsync("showToast", "Failed to update profile. Please try again.", "error");
+        }
+        finally
+        {
+            IsSaving = false;
+            StateHasChanged();
+        }
+    }
+}

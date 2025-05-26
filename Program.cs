@@ -21,6 +21,9 @@ builder.Services.AddScoped<IRestaurantService, RestaurantService>();
 // Register current user service
 builder.Services.AddSingleton<ICurrentUserService, CurrentUserService>();
 
+// Register user service
+builder.Services.AddScoped<IUserService, UserService>();
+
 // Register ApplicationDbContext and IApplicationDbContext
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
     options.UseSqlServer(
