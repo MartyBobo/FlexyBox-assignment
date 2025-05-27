@@ -234,7 +234,6 @@ dotnet ef migrations remove
 
 ### CSS Architecture
 
-- **No External Frameworks**: Bootstrap and Tailwind completely removed
 - **Shared Styles**: Centralized in `/wwwroot/css/shared.css`
 - **CSS Custom Properties**: Consistent design tokens
 - **Component-Specific CSS**: Each component has its own CSS file
@@ -246,23 +245,4 @@ dotnet ef migrations remove
 - **Handlers**: Separate handlers for each operation
 - **DTOs**: Clean data transfer between layers
 
-### Testing the Dynamic IsOpen Feature
 
-To test the dynamic opening hours:
-1. Check current time vs seeded opening hours
-2. Restaurant mode: Monday-Friday 7:00-22:00, Saturday 7:00-23:00, Sunday 8:00-21:00
-3. Takeaway mode: Monday-Sunday 8:00-21:00
-4. The status should update automatically based on current time
-
-### Performance Considerations
-
-- **Blazor Server**: Real-time updates without client-side complexity
-- **Entity Framework**: Optimized queries with Include statements
-- **Debounced Search**: Reduces API calls during typing
-- **CSS Variables**: Efficient styling with minimal overhead
-
----
-
-**Happy coding! 🚀**
-
-For questions or issues, please refer to the codebase documentation or create an issue in the repository.
