@@ -45,23 +45,46 @@
                 <img src="/images/icons/email-icon.svg" alt="Email" class="icon" />
                 <span>@Restaurant.Email</span>
             </div>
-        </div>
-
-        <div class="gallery-container">
-            <div class="gallery-scroller">
-                @if (Restaurant.GalleryImages != null)
-                {
-                    @foreach (var imageUrl in Restaurant.GalleryImages)
-                    {
-                        <div class="gallery-image">
-                            <img src="@imageUrl" alt="Restaurant image" />
+        </div>        <div class="gallery-container">
+            @if (Restaurant.GalleryImages != null && Restaurant.GalleryImages.Any())
+            {
+                <div class="carousel">
+                    <button class="carousel-btn carousel-prev" @onclick="PreviousImage" disabled="@(CurrentImageIndex == 0)">
+                        <img src="/images/icons/arrow-left.svg" alt="Previous" />
+                    </button>
+                    
+                    <div class="carousel-track-container">
+                        <div class="carousel-track" style="transform: translateX(-@(CurrentImageIndex * 100)%)">
+                            @for (int i = 0; i < Restaurant.GalleryImages.Count; i++)
+                            {
+                                var imageUrl = Restaurant.GalleryImages[i];
+                                <div class="carousel-slide">
+                                    <img src="@imageUrl" alt="Restaurant image @(i + 1)" />
+                                </div>
+                            }
                         </div>
-                    }                }
-                else
-                {
-                    <p>No images available.</p>
-                }
-            </div>
+                    </div>
+                    
+                    <button class="carousel-btn carousel-next" @onclick="NextImage" disabled="@(CurrentImageIndex >= Restaurant.GalleryImages.Count - 1)">
+                        <img src="/images/icons/arrow-right.svg" alt="Next" />
+                    </button>
+                </div>
+                
+                <!-- Image indicators -->
+                <div class="carousel-indicators">
+                    @for (int i = 0; i < Restaurant.GalleryImages.Count; i++)
+                    {
+                        var index = i;
+                        <button class="indicator @(CurrentImageIndex == index ? "active" : "")" 
+                                @onclick="() => GoToImage(index)">
+                        </button>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>No images available.</p>
+            }
         </div>
 
         <div class="opening-hours-section">
@@ -104,13 +127,12 @@
 </div>
 
 @code {    [Parameter]
-    public int Id { get; set; }
-
-    private ResturantDto? Restaurant { get; set; }
+    public int Id { get; set; }    private ResturantDto? Restaurant { get; set; }
     private string? SelectedMode { get; set; }
     private bool IsFavorited { get; set; }
     private bool IsToggling { get; set; }
     private bool IsPulsing { get; set; }
+    private int CurrentImageIndex { get; set; } = 0;
     
     private string FavoriteIcon => IsFavorited 
         ? "/images/icons/heart-filled.svg" 
@@ -130,13 +152,14 @@
     {
         try
         {
-            Restaurant = await RestaurantService.GetRestaurantAsync(Id);
-
-            if (Restaurant == null)
+            Restaurant = await RestaurantService.GetRestaurantAsync(Id);            if (Restaurant == null)
             {
                 NavigationManager.NavigateTo("/");
                 return;
             }
+
+            // Reset carousel to first image when loading new restaurant
+            CurrentImageIndex = 0;
 
             // Load favorite status
             IsFavorited = await RestaurantService.IsFavoriteAsync(Id);
@@ -200,6 +223,33 @@
         {
             IsToggling = false;
             StateHasChanged();
+        }
+    }
+
+    private async Task NextImage()
+    {
+        if (Restaurant?.GalleryImages != null && CurrentImageIndex < Restaurant.GalleryImages.Count - 1)
+        {
+            CurrentImageIndex++;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task PreviousImage()
+    {
+        if (CurrentImageIndex > 0)
+        {
+            CurrentImageIndex--;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task GoToImage(int index)
+    {
+        if (Restaurant?.GalleryImages != null && index >= 0 && index < Restaurant.GalleryImages.Count)
+        {
+            CurrentImageIndex = index;
+            await InvokeAsync(StateHasChanged);
         }
     }
 }
