@@ -39,13 +39,24 @@ h1 {
     flex: 1;
 }
 
+.restaurant-name-with-rating {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 4px;
+}
+
 .restaurant-info h2 {
-    margin: 0 0 4px 0;
+    margin: 0;
     font-size: 20px;
 }
 
-.restaurant-info ::deep .star-rating {
-    margin-bottom: 8px;
+.restaurant-name-with-rating ::deep .star-rating {
+    margin-bottom: 0;
+}
+
+.restaurant-name-with-rating ::deep .star {
+    font-size: 20px;
 }
 
 .restaurant-image {

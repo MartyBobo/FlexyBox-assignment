@@ -127,15 +127,26 @@
     flex: 1;
 }
 
+.favorite-name-with-rating {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 6px;
+}
+
 .favorite-name {
     font-size: 18px;
     font-weight: 600;
     color: #333;
-    margin-bottom: 6px;
+    margin-bottom: 0;
 }
 
-.favorite-content ::deep .star-rating {
-    margin-bottom: 6px;
+.favorite-name-with-rating ::deep .star-rating {
+    margin-bottom: 0;
+}
+
+.favorite-name-with-rating ::deep .star {
+    font-size: 18px;
 }
 
 .favorite-address {

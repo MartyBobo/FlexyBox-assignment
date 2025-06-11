@@ -10,14 +10,24 @@
     margin-bottom: var(--spacing-lg);
 }
 
+.restaurant-name-with-rating {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
 .restaurant-title h1 {
     margin: 0;
     font-size: 28px;
     font-weight: bold;
 }
 
-.restaurant-title ::deep .star-rating {
-    margin: 8px 0;
+.restaurant-name-with-rating ::deep .star-rating {
+    margin: 0;
+}
+
+.restaurant-name-with-rating ::deep .star {
+    font-size: 28px;
 }
 
 .restaurant-status {

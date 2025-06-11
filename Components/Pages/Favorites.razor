@@ -36,11 +36,13 @@
             {
                 <a href="/restaurant/@restaurant.Id" class="favorite-item">
                     <div class="favorite-content">
-                        <div class="favorite-name">@restaurant.Name</div>
-                        <StarRating Rating="@restaurant.AverageRating" 
-                                   ReviewCount="@restaurant.ReviewCount" 
-                                   ShowText="true" 
-                                   Size="small" />
+                        <div class="favorite-name-with-rating">
+                            <div class="favorite-name">@restaurant.Name</div>
+                            <StarRating Rating="@restaurant.AverageRating" 
+                                       ReviewCount="@restaurant.ReviewCount" 
+                                       ShowText="true" 
+                                       Size="small" />
+                        </div>
                         <div class="favorite-address">@restaurant.Address</div>
                         <div class="favorite-status @(restaurant.IsOpen ? "open" : "closed")">
                             • @(restaurant.IsOpen ? "Open" : "Closed")

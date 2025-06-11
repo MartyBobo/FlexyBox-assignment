@@ -24,11 +24,13 @@
                 <a href="/restaurant/@restaurant.Id" class="restaurant-card">
                     <div class="card-content">
                         <div class="restaurant-info">
-                            <h2>@restaurant.Name</h2>
-                            <StarRating Rating="@restaurant.AverageRating" 
-                                       ReviewCount="@restaurant.ReviewCount" 
-                                       ShowText="true" 
-                                       Size="small" />
+                            <div class="restaurant-name-with-rating">
+                                <h2>@restaurant.Name</h2>
+                                <StarRating Rating="@restaurant.AverageRating" 
+                                           ReviewCount="@restaurant.ReviewCount" 
+                                           ShowText="true" 
+                                           Size="small" />
+                            </div>
                             <p class="address">@restaurant.Address</p>
                             <span class="status @(restaurant.IsOpen ? "open" : "closed")">
                                 • @(restaurant.IsOpen ? "Open" : "Closed")

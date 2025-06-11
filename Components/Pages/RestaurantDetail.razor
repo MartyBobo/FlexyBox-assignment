@@ -15,11 +15,13 @@
     {
         <div class="restaurant-header">
             <div class="restaurant-title">
-                <h1>@Restaurant.Name</h1>
-                <StarRating Rating="@Restaurant.AverageRating" 
-                           ReviewCount="@Restaurant.ReviewCount" 
-                           ShowText="true" 
-                           Size="large" />
+                <div class="restaurant-name-with-rating">
+                    <h1>@Restaurant.Name</h1>
+                    <StarRating Rating="@Restaurant.AverageRating" 
+                               ReviewCount="@Restaurant.ReviewCount" 
+                               ShowText="true" 
+                               Size="large" />
+                </div>
                 <div class="restaurant-status @(Restaurant.IsOpen ? "open" : "closed")">
                     • @(Restaurant.IsOpen ? "Open" : "Closed")
                 </div>
