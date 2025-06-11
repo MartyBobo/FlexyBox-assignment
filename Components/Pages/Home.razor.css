@@ -28,9 +28,31 @@ h1 {
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
+.card-content {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+}
+
+.restaurant-info {
+    flex: 1;
+}
+
 .restaurant-info h2 {
     margin: 0 0 8px 0;
     font-size: 20px;
+}
+
+.restaurant-image {
+    flex-shrink: 0;
+}
+
+.restaurant-image img {
+    width: 120px;
+    height: 80px;
+    object-fit: cover;
+    border-radius: 4px;
 }
 
 .address {
@@ -48,4 +70,21 @@ h1 {
 
 .status.closed {
     color: #F44336;
+}
+
+/* Responsive design for mobile */
+@media (max-width: 480px) {
+    .card-content {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    
+    .restaurant-image {
+        width: 100%;
+    }
+    
+    .restaurant-image img {
+        width: 100%;
+        height: 200px;
+    }
 }

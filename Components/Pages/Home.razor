@@ -22,12 +22,22 @@
             @foreach (var restaurant in restaurants)
             {
                 <a href="/restaurant/@restaurant.Id" class="restaurant-card">
-                    <div class="restaurant-info">
-                        <h2>@restaurant.Name</h2>
-                        <p class="address">@restaurant.Address</p>
-                        <span class="status @(restaurant.IsOpen ? "open" : "closed")">
-                            • @(restaurant.IsOpen ? "Open" : "Closed")
-                        </span>
+                    <div class="card-content">
+                        <div class="restaurant-info">
+                            <h2>@restaurant.Name</h2>
+                            <p class="address">@restaurant.Address</p>
+                            <span class="status @(restaurant.IsOpen ? "open" : "closed")">
+                                • @(restaurant.IsOpen ? "Open" : "Closed")
+                            </span>
+                        </div>
+                        @if (restaurant.GalleryImages != null && restaurant.GalleryImages.Any())
+                        {
+                            <div class="restaurant-image">
+                                <img src="@restaurant.GalleryImages.First()" 
+                                     alt="@restaurant.Name" 
+                                     loading="lazy" />
+                            </div>
+                        }
                     </div>
                 </a>
             }
