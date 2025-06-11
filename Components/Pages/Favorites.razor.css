@@ -134,6 +134,10 @@
     margin-bottom: 6px;
 }
 
+.favorite-content ::deep .star-rating {
+    margin-bottom: 6px;
+}
+
 .favorite-address {
     font-size: 14px;
     color: #666;

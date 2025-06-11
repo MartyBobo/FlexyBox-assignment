@@ -51,7 +51,7 @@ public class RestaurantService : IRestaurantService
             var result = await _mediator.Send(query);
             return result;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log the exception and return false as default
             return false;

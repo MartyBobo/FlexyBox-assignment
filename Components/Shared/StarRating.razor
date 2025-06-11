@@ -1,0 +1,108 @@
+@using System.Globalization
+
+<div class="star-rating" title="@GetTooltipText()">
+    @for (int i = 1; i <= 5; i++)
+    {
+        var starIndex = i;
+        <span class="star @GetStarClass(starIndex)">★</span>
+    }
+    @if (ShowText)
+    {
+        <span class="rating-text">
+            @if (Rating.HasValue)
+            {
+                <text>@Rating.Value.ToString("0.#", CultureInfo.InvariantCulture)</text>
+            }
+            @if (ReviewCount > 0)
+            {
+                <text> (@ReviewCount @(ReviewCount == 1 ? "review" : "reviews"))</text>
+            }
+        </span>
+    }
+</div>
+
+@code {
+    [Parameter] public decimal? Rating { get; set; }
+    [Parameter] public int ReviewCount { get; set; }
+    [Parameter] public bool ShowText { get; set; } = true;
+    [Parameter] public string Size { get; set; } = "medium"; // small, medium, large
+
+    private string GetStarClass(int starIndex)
+    {
+        if (!Rating.HasValue) return "empty";
+        
+        var rating = Rating.Value;
+        if (starIndex <= Math.Floor((double)rating))
+        {
+            return "filled";
+        }
+        else if (starIndex - 0.5m <= rating)
+        {
+            return "half";
+        }
+        else
+        {
+            return "empty";
+        }
+    }
+
+    private string GetTooltipText()
+    {
+        if (!Rating.HasValue) return "No reviews yet";
+        return $"{Rating.Value:0.#} out of 5 stars ({ReviewCount} {(ReviewCount == 1 ? "review" : "reviews")})";
+    }
+}
+
+<style>
+    .star-rating {
+        display: inline-flex;
+        align-items: center;
+        gap: 2px;
+    }
+
+    .star {
+        position: relative;
+        display: inline-block;
+        color: #ddd;
+        font-size: 20px;
+        line-height: 1;
+        transition: color 0.2s ease;
+    }
+
+    .star-rating[data-size="small"] .star {
+        font-size: 16px;
+    }
+
+    .star-rating[data-size="large"] .star {
+        font-size: 24px;
+    }
+
+    .star.filled {
+        color: #ffc107;
+    }
+
+    .star.half {
+        background: linear-gradient(90deg, #ffc107 50%, #ddd 50%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .star.empty {
+        color: #ddd;
+    }
+
+    .rating-text {
+        margin-left: 8px;
+        font-size: 14px;
+        color: #666;
+    }
+
+    .star-rating[data-size="small"] .rating-text {
+        font-size: 12px;
+    }
+
+    .star-rating[data-size="large"] .rating-text {
+        font-size: 16px;
+    }
+</style>

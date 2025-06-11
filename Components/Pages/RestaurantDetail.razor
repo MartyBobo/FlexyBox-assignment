@@ -16,6 +16,10 @@
         <div class="restaurant-header">
             <div class="restaurant-title">
                 <h1>@Restaurant.Name</h1>
+                <StarRating Rating="@Restaurant.AverageRating" 
+                           ReviewCount="@Restaurant.ReviewCount" 
+                           ShowText="true" 
+                           Size="large" />
                 <div class="restaurant-status @(Restaurant.IsOpen ? "open" : "closed")">
                     • @(Restaurant.IsOpen ? "Open" : "Closed")
                 </div>
@@ -214,7 +218,7 @@
             await Task.Delay(300);
             IsPulsing = false;
             StateHasChanged();
-        }        catch (Exception ex)
+        }        catch (Exception)
         {
             // Handle error
             await JSRuntime.InvokeVoidAsync("showToast", "Error updating favorites. Please try again.", "error");

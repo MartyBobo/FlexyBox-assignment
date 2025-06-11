@@ -23,6 +23,8 @@ public class GetFavoritesByUserQueryHandler : IRequestHandler<GetFavoritesByUser
                 .ThenInclude(r => r.OpeningHours)
             .Include(f => f.Restaurant)
                 .ThenInclude(r => r.GalleryImages)
+            .Include(f => f.Restaurant)
+                .ThenInclude(r => r.Reviews)
             .Select(f => f.Restaurant)
             .ToListAsync(cancellationToken);        var result = favorites.Select(restaurant => new ResturantDto
         {
@@ -45,7 +47,11 @@ public class GetFavoritesByUserQueryHandler : IRequestHandler<GetFavoritesByUser
                     }).ToList()),
             GalleryImages = restaurant.GalleryImages
                 .Select(gi => gi.ImageUrl)
-                .ToList()
+                .ToList(),
+            AverageRating = restaurant.Reviews.Any() 
+                ? (decimal?)Math.Round(restaurant.Reviews.Average(r => r.Rating), 1) 
+                : null,
+            ReviewCount = restaurant.Reviews.Count
         }).ToList();
 
         return result;

@@ -20,6 +20,7 @@ public class GetAllRestaurantsQueryHandler : IRequestHandler<GetAllRestaurantsQu
         var restaurants = await _context.Resturants
             .Include(r => r.OpeningHours)
             .Include(r => r.GalleryImages)
+            .Include(r => r.Reviews)
             .ToListAsync(cancellationToken);
 
         var result = restaurants.Select(restaurant => new ResturantDto
@@ -43,7 +44,11 @@ public class GetAllRestaurantsQueryHandler : IRequestHandler<GetAllRestaurantsQu
                     }).ToList()),
             GalleryImages = restaurant.GalleryImages
                 .Select(gi => gi.ImageUrl)
-                .ToList()
+                .ToList(),
+            AverageRating = restaurant.Reviews.Any() 
+                ? (decimal?)Math.Round(restaurant.Reviews.Average(r => r.Rating), 1) 
+                : null,
+            ReviewCount = restaurant.Reviews.Count
         }).ToList();
 
         return result;

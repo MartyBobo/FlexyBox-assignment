@@ -1,6 +1,7 @@
 ﻿// Infrastructure/Data/ApplicationDbContextSeed.cs
 
 using Domain.Entities;
+using Microsoft.EntityFrameworkCore;
 using MyApp.Server.Infrastructure.Data;
 
 public class DataSeeder

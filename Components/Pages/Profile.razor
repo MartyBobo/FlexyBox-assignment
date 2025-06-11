@@ -95,7 +95,7 @@
             
             UserProfile = await UserService.GetProfileAsync();
         }
-        catch (Exception ex)
+        catch (Exception)
         {            // Handle error - for now just set null profile
             UserProfile = null;
             // TODO: Log error
@@ -121,7 +121,7 @@
             // Show success notification
             await JSRuntime.InvokeVoidAsync("showToast", "Profile updated successfully!", "success");
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Show error notification
             await JSRuntime.InvokeVoidAsync("showToast", "Failed to update profile. Please try again.", "error");

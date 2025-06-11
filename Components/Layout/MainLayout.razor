@@ -41,7 +41,7 @@
 
 @code {
     [Inject]
-    private NavigationManager NavigationManager { get; set; }
+    private NavigationManager NavigationManager { get; set; } = default!;
 
     private bool IsActive(string href)
     {

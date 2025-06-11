@@ -37,6 +37,10 @@
                 <a href="/restaurant/@restaurant.Id" class="favorite-item">
                     <div class="favorite-content">
                         <div class="favorite-name">@restaurant.Name</div>
+                        <StarRating Rating="@restaurant.AverageRating" 
+                                   ReviewCount="@restaurant.ReviewCount" 
+                                   ShowText="true" 
+                                   Size="small" />
                         <div class="favorite-address">@restaurant.Address</div>
                         <div class="favorite-status @(restaurant.IsOpen ? "open" : "closed")">
                             • @(restaurant.IsOpen ? "Open" : "Closed")
@@ -67,7 +71,7 @@
             
             FavoriteRestaurants = await RestaurantService.GetFavoritesAsync();
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Handle error - for now just set empty list
             FavoriteRestaurants = new List<ResturantDto>();

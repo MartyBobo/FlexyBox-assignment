@@ -7,11 +7,11 @@ using System.Threading.Tasks;
 
 namespace Application.Resturants.Queries
 {
-    public class GetResturantByIdQuery : IRequest<ResturantDto>
+    public class GetResturantByIdQuery : IRequest<ResturantDto?>
     {
         public int Id { get; set; }
 
-        public class GetResturantByIdQueryHandler : IRequestHandler<GetResturantByIdQuery, ResturantDto>
+        public class GetResturantByIdQueryHandler : IRequestHandler<GetResturantByIdQuery, ResturantDto?>
         {
             private readonly IApplicationDbContext _context;
 
@@ -20,11 +20,12 @@ namespace Application.Resturants.Queries
                 _context = context;
             }
 
-            public async Task<ResturantDto> Handle(GetResturantByIdQuery request, CancellationToken cancellationToken)
+            public async Task<ResturantDto?> Handle(GetResturantByIdQuery request, CancellationToken cancellationToken)
             {
                 var resturant = await _context.Resturants
                     .Include(r => r.OpeningHours)
                     .Include(r => r.GalleryImages)
+                    .Include(r => r.Reviews)
                     .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
 
                 if (resturant == null)
@@ -56,6 +57,12 @@ namespace Application.Resturants.Queries
                 resturantDto.GalleryImages = resturant.GalleryImages
                     .Select(gi => gi.ImageUrl)
                     .ToList();
+
+                // Calculate average rating and review count
+                resturantDto.AverageRating = resturant.Reviews.Any() 
+                    ? (decimal?)Math.Round(resturant.Reviews.Average(r => r.Rating), 1) 
+                    : null;
+                resturantDto.ReviewCount = resturant.Reviews.Count;
 
                 return resturantDto;
             }

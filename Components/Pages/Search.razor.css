@@ -134,6 +134,10 @@
     margin-bottom: var(--spacing-xs);
 }
 
+.result-content ::deep .star-rating {
+    margin-bottom: 6px;
+}
+
 .result-address {
     font-size: var(--font-size-base);
     color: #666;

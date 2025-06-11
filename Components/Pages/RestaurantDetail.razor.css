@@ -16,6 +16,10 @@
     font-weight: bold;
 }
 
+.restaurant-title ::deep .star-rating {
+    margin: 8px 0;
+}
+
 .restaurant-status {
     margin-top: var(--spacing-xs);
     font-size: var(--font-size-base);
