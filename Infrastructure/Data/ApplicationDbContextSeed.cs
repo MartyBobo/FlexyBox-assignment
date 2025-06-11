@@ -978,5 +978,62 @@ public class DataSeeder
             
             await context.SaveChangesAsync();
         }
+
+        // Seed sample reviews if none exist
+        if (!context.Reviews.Any())
+        {
+            var restaurants = await context.Resturants.ToListAsync();
+            var defaultUser = await context.Users.FirstOrDefaultAsync();
+            
+            if (defaultUser != null && restaurants.Any())
+            {
+                // Add reviews for Aalborg Restaurant
+                var aalborgRestaurant = restaurants.FirstOrDefault(r => r.Name == "Aalborg Restaurant");
+                if (aalborgRestaurant != null)
+                {
+                    context.Reviews.Add(new Review
+                    {
+                        UserId = defaultUser.Id,
+                        RestaurantId = aalborgRestaurant.Id,
+                        Rating = 4,
+                        Comment = "Great food and friendly service! The atmosphere is cozy and the Danish dishes are authentic. Will definitely come back.",
+                        CreatedAt = DateTime.UtcNow.AddDays(-5),
+                        UpdatedAt = DateTime.UtcNow.AddDays(-5)
+                    });
+                }
+
+                // Add reviews for Copenhagen Bistro
+                var copenhagenBistro = restaurants.FirstOrDefault(r => r.Name == "Copenhagen Bistro");
+                if (copenhagenBistro != null)
+                {
+                    context.Reviews.Add(new Review
+                    {
+                        UserId = defaultUser.Id,
+                        RestaurantId = copenhagenBistro.Id,
+                        Rating = 5,
+                        Comment = "Absolutely fantastic! The best dining experience in Copenhagen. The staff is professional and the food is exceptional.",
+                        CreatedAt = DateTime.UtcNow.AddDays(-3),
+                        UpdatedAt = DateTime.UtcNow.AddDays(-3)
+                    });
+                }
+
+                // Add reviews for Aarhus Kro
+                var aarhusKro = restaurants.FirstOrDefault(r => r.Name == "Aarhus Kro");
+                if (aarhusKro != null)
+                {
+                    context.Reviews.Add(new Review
+                    {
+                        UserId = defaultUser.Id,
+                        RestaurantId = aarhusKro.Id,
+                        Rating = 3,
+                        Comment = "Traditional Danish cuisine with good flavors. The flødekartofler were delicious but the service was a bit slow.",
+                        CreatedAt = DateTime.UtcNow.AddDays(-1),
+                        UpdatedAt = DateTime.UtcNow.AddDays(-1)
+                    });
+                }
+
+                await context.SaveChangesAsync();
+            }
+        }
     }
 }

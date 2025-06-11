@@ -17,6 +17,7 @@ namespace MyApp.Server.Infrastructure.Data
         public DbSet<GalleryImage> GalleryImages { get; set; } = null!;
         public DbSet<Favorite> Favorites { get; set; } = null!;
         public DbSet<User> Users { get; set; } = null!;
+        public DbSet<Review> Reviews { get; set; } = null!;
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -73,6 +74,38 @@ namespace MyApp.Server.Infrastructure.Data
             builder.Entity<User>()
                 .HasIndex(u => u.Email)
                 .IsUnique();
+
+            // Review entity configuration
+            builder.Entity<Review>()
+                .ToTable("Reviews")
+                .HasKey(r => r.Id);
+
+            builder.Entity<Review>()
+                .Property(r => r.Rating)
+                .IsRequired();
+
+            builder.Entity<Review>()
+                .Property(r => r.Comment)
+                .IsRequired()
+                .HasMaxLength(1000);
+
+            // Unique constraint: one review per user per restaurant
+            builder.Entity<Review>()
+                .HasIndex(r => new { r.UserId, r.RestaurantId })
+                .IsUnique();
+
+            // Review relationships
+            builder.Entity<Review>()
+                .HasOne(r => r.User)
+                .WithMany(u => u.Reviews)
+                .HasForeignKey(r => r.UserId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            builder.Entity<Review>()
+                .HasOne(r => r.Restaurant)
+                .WithMany(res => res.Reviews)
+                .HasForeignKey(r => r.RestaurantId)
+                .OnDelete(DeleteBehavior.Cascade);
         }
     }
 }

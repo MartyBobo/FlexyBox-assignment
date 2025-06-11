@@ -11,4 +11,5 @@ public class Resturant
     
     public ICollection<OpeningHours> OpeningHours { get; set; } = new List<OpeningHours>();
     public ICollection<GalleryImage> GalleryImages { get; set; } = new List<GalleryImage>();
+    public ICollection<Review> Reviews { get; set; } = new List<Review>();
 }
