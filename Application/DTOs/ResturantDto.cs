@@ -26,4 +26,5 @@ public class ResturantDto
     // Review-related properties
     public decimal? AverageRating { get; set; }
     public int ReviewCount { get; set; }
+    public List<ReviewDto> Reviews { get; set; } = new();
 }

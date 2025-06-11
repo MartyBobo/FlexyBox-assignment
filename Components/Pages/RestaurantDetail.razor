@@ -17,10 +17,12 @@
             <div class="restaurant-title">
                 <div class="restaurant-name-with-rating">
                     <h1>@Restaurant.Name</h1>
-                    <StarRating Rating="@Restaurant.AverageRating" 
-                               ReviewCount="@Restaurant.ReviewCount" 
-                               ShowText="true" 
-                               Size="large" />
+                    <div class="clickable-rating" @onclick="ShowReviewsModal">
+                        <StarRating Rating="@Restaurant.AverageRating" 
+                                   ReviewCount="@Restaurant.ReviewCount" 
+                                   ShowText="true" 
+                                   Size="large" />
+                    </div>
                 </div>
                 <div class="restaurant-status @(Restaurant.IsOpen ? "open" : "closed")">
                     • @(Restaurant.IsOpen ? "Open" : "Closed")
@@ -132,6 +134,68 @@
         </div>    }
 </div>
 
+@if (ShowReviewsModalFlag)
+{
+    <div class="modal-overlay" @onclick="CloseReviewsModal">
+        <div class="modal-container" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h2>Reviews</h2>
+                <button class="modal-close" @onclick="CloseReviewsModal">×</button>
+            </div>
+            
+            <div class="modal-filters">
+                <button class="filter-btn @(SelectedRatingFilter == null ? "active" : "")" 
+                        @onclick="() => FilterReviews(null)">
+                    All
+                </button>
+                @for (int i = 5; i >= 1; i--)
+                {
+                    var rating = i;
+                    <button class="filter-btn @(SelectedRatingFilter == rating ? "active" : "")" 
+                            @onclick="() => FilterReviews(rating)">
+                        @rating @(rating == 1 ? "star" : "stars")
+                    </button>
+                }
+            </div>
+            
+            <div class="modal-content">
+                @if (FilteredReviews == null || IsLoadingReviews)
+                {
+                    <div class="reviews-loading">
+                        <div class="spinner"></div>
+                        <p>Loading reviews...</p>
+                    </div>
+                }
+                else if (!FilteredReviews.Any())
+                {
+                    <div class="no-reviews">
+                        <p>@(SelectedRatingFilter.HasValue ? $"No {SelectedRatingFilter}-star reviews yet." : "No reviews yet.")</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="reviews-list">
+                        @foreach (var review in FilteredReviews)
+                        {
+                            <div class="review-card">
+                                <div class="review-header">
+                                    <span class="review-username">@review.Username</span>
+                                    <StarRating Rating="@review.Rating" 
+                                               ReviewCount="0" 
+                                               ShowText="false" 
+                                               Size="small" />
+                                </div>
+                                <p class="review-comment">@review.Comment</p>
+                                <span class="review-date">@review.CreatedAt.ToString("MMM d, yyyy")</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
+
 @code {    [Parameter]
     public int Id { get; set; }    private ResturantDto? Restaurant { get; set; }
     private string? SelectedMode { get; set; }
@@ -139,6 +203,13 @@
     private bool IsToggling { get; set; }
     private bool IsPulsing { get; set; }
     private int CurrentImageIndex { get; set; } = 0;
+    
+    // Reviews modal state
+    private bool ShowReviewsModalFlag { get; set; }
+    private bool IsLoadingReviews { get; set; }
+    private List<ReviewDto>? AllReviews { get; set; }
+    private List<ReviewDto>? FilteredReviews { get; set; }
+    private int? SelectedRatingFilter { get; set; }
     
     private string FavoriteIcon => IsFavorited 
         ? "/images/icons/heart-filled.svg" 
@@ -257,5 +328,63 @@
             CurrentImageIndex = index;
             await InvokeAsync(StateHasChanged);
         }
+    }
+
+    // Reviews modal methods
+    private async Task ShowReviewsModal()
+    {
+        ShowReviewsModalFlag = true;
+        IsLoadingReviews = true;
+        SelectedRatingFilter = null;
+        StateHasChanged();
+
+        try
+        {
+            // Use the reviews from the Restaurant object if available
+            if (Restaurant?.Reviews != null && Restaurant.Reviews.Any())
+            {
+                AllReviews = Restaurant.Reviews;
+            }
+            else
+            {
+                // Fallback to fetching reviews separately if needed
+                AllReviews = await RestaurantService.GetRestaurantReviewsAsync(Id);
+            }
+            
+            FilteredReviews = AllReviews;
+        }
+        catch (Exception)
+        {
+            AllReviews = new List<ReviewDto>();
+            FilteredReviews = new List<ReviewDto>();
+        }
+        finally
+        {
+            IsLoadingReviews = false;
+            StateHasChanged();
+        }
+    }
+
+    private void CloseReviewsModal()
+    {
+        ShowReviewsModalFlag = false;
+        StateHasChanged();
+    }
+
+    private void FilterReviews(int? rating)
+    {
+        SelectedRatingFilter = rating;
+        
+        if (AllReviews == null)
+        {
+            FilteredReviews = new List<ReviewDto>();
+            return;
+        }
+
+        FilteredReviews = rating.HasValue 
+            ? AllReviews.Where(r => r.Rating == rating.Value).ToList()
+            : AllReviews;
+            
+        StateHasChanged();
     }
 }

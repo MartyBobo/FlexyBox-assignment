@@ -10,4 +10,5 @@ public interface IRestaurantService
     Task<bool> IsFavoriteAsync(int id);
     Task<List<ResturantDto>> SearchRestaurantsAsync(string searchTerm);
     Task<List<ResturantDto>> GetFavoritesAsync();
+    Task<List<ReviewDto>> GetRestaurantReviewsAsync(int restaurantId);
 }

@@ -10,6 +10,7 @@ public interface IApplicationDbContext
     DbSet<GalleryImage> GalleryImages { get; }
     DbSet<Favorite> Favorites { get; }
     DbSet<User> Users { get; }
+    DbSet<Review> Reviews { get; }
 
     Task<int> SaveChangesAsync(CancellationToken cancellationToken = default);
 }

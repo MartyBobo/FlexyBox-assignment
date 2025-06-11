@@ -102,4 +102,19 @@ public class RestaurantService : IRestaurantService
             throw new Exception("Error retrieving all restaurants", ex);
         }
     }
+
+    public async Task<List<ReviewDto>> GetRestaurantReviewsAsync(int restaurantId)
+    {
+        try
+        {
+            var query = new GetRestaurantReviewsQuery { RestaurantId = restaurantId };
+            var reviews = await _mediator.Send(query);
+            return reviews;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            throw new Exception($"Error retrieving reviews for restaurant {restaurantId}", ex);
+        }
+    }
 }

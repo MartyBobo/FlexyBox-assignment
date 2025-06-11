@@ -26,6 +26,7 @@ namespace Application.Resturants.Queries
                     .Include(r => r.OpeningHours)
                     .Include(r => r.GalleryImages)
                     .Include(r => r.Reviews)
+                        .ThenInclude(rev => rev.User)
                     .FirstOrDefaultAsync(r => r.Id == request.Id, cancellationToken);
 
                 if (resturant == null)
@@ -63,6 +64,21 @@ namespace Application.Resturants.Queries
                     ? (decimal?)Math.Round(resturant.Reviews.Average(r => r.Rating), 1) 
                     : null;
                 resturantDto.ReviewCount = resturant.Reviews.Count;
+
+                // Map reviews
+                resturantDto.Reviews = resturant.Reviews
+                    .OrderByDescending(r => r.CreatedAt)
+                    .Select(r => new ReviewDto
+                    {
+                        Id = r.Id,
+                        UserId = r.UserId,
+                        Username = r.User.Name,
+                        Rating = r.Rating,
+                        Comment = r.Comment,
+                        CreatedAt = r.CreatedAt,
+                        UpdatedAt = r.UpdatedAt
+                    })
+                    .ToList();
 
                 return resturantDto;
             }
