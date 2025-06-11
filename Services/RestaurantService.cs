@@ -132,6 +132,11 @@ public class RestaurantService : IRestaurantService
             var review = await _mediator.Send(command);
             return review;
         }
+        catch (InvalidOperationException)
+        {
+            // Re-throw InvalidOperationException to preserve the specific error message
+            throw;
+        }
         catch (Exception ex)
         {
             // Log the exception
