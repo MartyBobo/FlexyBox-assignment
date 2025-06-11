@@ -664,5 +664,319 @@ public class DataSeeder
             
             await context.SaveChangesAsync();
         }
+
+        // Seed Aarhus Kro if it doesn't exist
+        if (!context.Resturants.Any(r => r.Name == "Aarhus Kro"))
+        {
+            // Create third restaurant - Aarhus Kro
+            var restaurant3 = new Resturant
+            {
+                Name = "Aarhus Kro",
+                Address = "Store Torv 1, 8000 Aarhus",
+                Phone = "+45 33 44 55 66",
+                Email = "aarhus@flexybox.com",
+                IsOpen = true
+            };
+            
+            context.Resturants.Add(restaurant3);
+            await context.SaveChangesAsync();
+            
+            // Add opening hours for Aarhus Kro - Restaurant mode
+            context.OpeningHours.Add(new OpeningHours 
+            { 
+                ResturantId = restaurant3.Id,
+                Mode = "Restaurant",
+                Day = "Monday", 
+                StartTime = new TimeSpan(11, 0, 0),
+                EndTime = new TimeSpan(21, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours 
+            { 
+                ResturantId = restaurant3.Id,
+                Mode = "Restaurant",
+                Day = "Tuesday", 
+                StartTime = new TimeSpan(11, 0, 0),
+                EndTime = new TimeSpan(21, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours 
+            { 
+                ResturantId = restaurant3.Id,
+                Mode = "Restaurant",
+                Day = "Wednesday", 
+                StartTime = new TimeSpan(11, 0, 0),
+                EndTime = new TimeSpan(21, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours 
+            { 
+                ResturantId = restaurant3.Id,
+                Mode = "Restaurant",
+                Day = "Thursday", 
+                StartTime = new TimeSpan(11, 0, 0),
+                EndTime = new TimeSpan(21, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours 
+            { 
+                ResturantId = restaurant3.Id,
+                Mode = "Restaurant",
+                Day = "Friday", 
+                StartTime = new TimeSpan(11, 0, 0),
+                EndTime = new TimeSpan(22, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours 
+            { 
+                ResturantId = restaurant3.Id,
+                Mode = "Restaurant",
+                Day = "Saturday", 
+                StartTime = new TimeSpan(11, 0, 0),
+                EndTime = new TimeSpan(22, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours 
+            { 
+                ResturantId = restaurant3.Id,
+                Mode = "Restaurant",
+                Day = "Sunday", 
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(20, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours 
+            { 
+                ResturantId = restaurant3.Id,
+                Mode = "Restaurant",
+                Day = "Holiday"
+            });
+            
+            // Add opening hours for Aarhus Kro - Takeaway mode
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Takeaway",
+                Day = "Monday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(20, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Takeaway",
+                Day = "Tuesday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(20, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Takeaway",
+                Day = "Wednesday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(20, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Takeaway",
+                Day = "Thursday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(20, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Takeaway",
+                Day = "Friday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(20, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Takeaway",
+                Day = "Saturday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(20, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Takeaway",
+                Day = "Sunday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(20, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Takeaway",
+                Day = "Holiday"
+            });
+            
+            // Add opening hours for Aarhus Kro - Buffet mode
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Buffet",
+                Day = "Monday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(15, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Buffet",
+                Day = "Tuesday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(15, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Buffet",
+                Day = "Wednesday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(15, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Buffet",
+                Day = "Thursday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(15, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Buffet",
+                Day = "Friday",
+                StartTime = new TimeSpan(12, 0, 0),
+                EndTime = new TimeSpan(15, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Buffet",
+                Day = "Saturday",
+                StartTime = new TimeSpan(11, 30, 0),
+                EndTime = new TimeSpan(16, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Buffet",
+                Day = "Sunday",
+                StartTime = new TimeSpan(11, 30, 0),
+                EndTime = new TimeSpan(16, 0, 0)
+            });
+            
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Buffet",
+                Day = "Holiday"
+            });
+            
+            // Add opening hours for Aarhus Kro - Special Events mode
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Special Events",
+                Day = "Monday"
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Special Events",
+                Day = "Tuesday"
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Special Events",
+                Day = "Wednesday"
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Special Events",
+                Day = "Thursday"
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Special Events",
+                Day = "Friday",
+                StartTime = new TimeSpan(18, 0, 0),
+                EndTime = new TimeSpan(23, 0, 0)
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Special Events",
+                Day = "Saturday",
+                StartTime = new TimeSpan(18, 0, 0),
+                EndTime = new TimeSpan(23, 0, 0)
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Special Events",
+                Day = "Sunday",
+                StartTime = new TimeSpan(17, 0, 0),
+                EndTime = new TimeSpan(21, 0, 0)
+            });
+
+            context.OpeningHours.Add(new OpeningHours
+            {
+                ResturantId = restaurant3.Id,
+                Mode = "Special Events",
+                Day = "Holiday"
+            });
+            
+            // Add gallery images for Aarhus Kro (using PNG files)
+            context.GalleryImages.Add(new GalleryImage
+            {
+                ResturantId = restaurant3.Id,
+                ImageUrl = "/images/gallery/flodekartofler.png"
+            });
+
+            context.GalleryImages.Add(new GalleryImage
+            {
+                ResturantId = restaurant3.Id,
+                ImageUrl = "/images/gallery/hamberryg.png"
+            });
+
+            context.GalleryImages.Add(new GalleryImage
+            {
+                ResturantId = restaurant3.Id,
+                ImageUrl = "/images/gallery/kortletter-i-fed.png"
+            });
+            
+            await context.SaveChangesAsync();
+        }
     }
 }
