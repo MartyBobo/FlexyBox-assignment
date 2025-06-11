@@ -1,0 +1,388 @@
+.reviews-page {
+    padding: var(--spacing-lg);
+    max-width: 1200px;
+    margin: 0 auto;
+}
+
+.reviews-page h1 {
+    margin-bottom: var(--spacing-lg);
+    font-size: 28px;
+    font-weight: bold;
+}
+
+.loading-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 60px 20px;
+}
+
+.loading-container p {
+    margin-top: 16px;
+    color: #666;
+}
+
+.no-reviews {
+    text-align: center;
+    padding: 60px 20px;
+    color: #666;
+}
+
+.no-reviews p {
+    margin-bottom: 8px;
+}
+
+.reviews-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(350px, 1fr));
+    gap: var(--spacing-lg);
+}
+
+.review-card {
+    background: white;
+    border: 1px solid var(--color-border);
+    border-radius: var(--border-radius);
+    padding: var(--spacing-lg);
+    transition: box-shadow var(--transition-fast);
+}
+
+.review-card:hover {
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+}
+
+.review-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: var(--spacing-md);
+}
+
+.restaurant-name {
+    margin: 0;
+    font-size: 20px;
+    font-weight: 600;
+    color: var(--color-primary);
+    cursor: pointer;
+    transition: color var(--transition-fast);
+}
+
+.restaurant-name:hover {
+    color: #0056b3;
+    text-decoration: underline;
+}
+
+.review-actions {
+    display: flex;
+    gap: 8px;
+}
+
+.edit-btn,
+.delete-btn {
+    padding: 6px 12px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    cursor: pointer;
+    transition: background-color var(--transition-fast);
+}
+
+.edit-btn {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.edit-btn:hover {
+    background-color: #e0e0e0;
+}
+
+.delete-btn {
+    background-color: #fee;
+    color: #c00;
+}
+
+.delete-btn:hover {
+    background-color: #fdd;
+}
+
+.review-rating {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: var(--spacing-md);
+}
+
+.review-rating ::deep .star-rating {
+    margin: 0;
+}
+
+.review-date {
+    font-size: 14px;
+    color: #999;
+}
+
+.review-comment {
+    margin: 0;
+    line-height: 1.6;
+    color: #444;
+}
+
+/* Modal Styles (reusing from RestaurantDetail.razor.css) */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 20px;
+}
+
+.modal-container {
+    background: white;
+    border-radius: 8px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 80vh;
+    display: flex;
+    flex-direction: column;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+}
+
+.edit-review-modal {
+    max-width: 500px;
+}
+
+.delete-confirmation-modal {
+    max-width: 400px;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid var(--color-border);
+}
+
+.modal-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 28px;
+    cursor: pointer;
+    color: #666;
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    transition: background-color var(--transition-fast);
+}
+
+.modal-close:hover {
+    background-color: #f0f0f0;
+}
+
+.edit-review-content,
+.delete-content {
+    padding: 20px;
+}
+
+.validation-message {
+    background-color: #fee;
+    color: #c00;
+    padding: 12px;
+    border-radius: 4px;
+    margin-bottom: 16px;
+    font-size: 14px;
+}
+
+.edit-restaurant-name {
+    margin: 0 0 20px 0;
+    font-size: 18px;
+    color: #333;
+}
+
+.rating-selector {
+    margin-bottom: 24px;
+}
+
+.rating-selector label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.star-selector {
+    display: flex;
+    gap: 4px;
+}
+
+.star-button {
+    font-size: 32px;
+    color: #ddd;
+    cursor: pointer;
+    transition: color var(--transition-fast);
+    user-select: none;
+}
+
+.star-button.hovered,
+.star-button.selected {
+    color: #ffc107;
+}
+
+.star-button:hover {
+    transform: scale(1.1);
+}
+
+.comment-section {
+    margin-bottom: 24px;
+}
+
+.comment-section label {
+    display: block;
+    margin-bottom: 8px;
+    font-weight: 600;
+    color: #333;
+}
+
+.review-textarea {
+    width: 100%;
+    min-height: 120px;
+    padding: 12px;
+    border: 1px solid var(--color-border);
+    border-radius: 4px;
+    font-size: 14px;
+    font-family: inherit;
+    resize: vertical;
+    transition: border-color var(--transition-fast);
+}
+
+.review-textarea:focus {
+    outline: none;
+    border-color: var(--color-primary);
+}
+
+.character-count {
+    text-align: right;
+    font-size: 12px;
+    color: #666;
+    margin-top: 4px;
+}
+
+.modal-actions {
+    display: flex;
+    gap: 12px;
+    justify-content: flex-end;
+}
+
+.btn-cancel,
+.btn-submit,
+.btn-delete {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    font-size: 14px;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all var(--transition-fast);
+}
+
+.btn-cancel {
+    background-color: #f0f0f0;
+    color: #333;
+}
+
+.btn-cancel:hover:not(:disabled) {
+    background-color: #e0e0e0;
+}
+
+.btn-submit {
+    background-color: var(--color-primary);
+    color: white;
+}
+
+.btn-submit:hover:not(:disabled) {
+    background-color: #0056b3;
+}
+
+.btn-delete {
+    background-color: #dc3545;
+    color: white;
+}
+
+.btn-delete:hover:not(:disabled) {
+    background-color: #c82333;
+}
+
+.btn-cancel:disabled,
+.btn-submit:disabled,
+.btn-delete:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.delete-content p {
+    margin-bottom: 16px;
+}
+
+.delete-warning {
+    color: #666;
+    font-size: 14px;
+}
+
+/* Mobile responsive */
+@media (max-width: 768px) {
+    .reviews-grid {
+        grid-template-columns: 1fr;
+    }
+    
+    .review-card {
+        padding: var(--spacing-md);
+    }
+    
+    .review-card-header {
+        flex-direction: column;
+        gap: 12px;
+    }
+    
+    .review-actions {
+        width: 100%;
+        justify-content: flex-start;
+    }
+    
+    .review-rating {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+    }
+    
+    .modal-container {
+        max-height: 90vh;
+        margin: 10px;
+    }
+    
+    .modal-header {
+        padding: 16px;
+    }
+    
+    .edit-review-content,
+    .delete-content {
+        padding: 16px;
+    }
+    
+    .star-button {
+        font-size: 28px;
+    }
+}

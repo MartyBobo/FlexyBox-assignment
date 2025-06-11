@@ -27,4 +27,50 @@ public class UserService : IUserService
         var command = new UpdateUserProfileCommand(_currentUserService.UserId, profile);
         await _mediator.Send(command);
     }
+
+    public async Task<List<UserReviewDto>> GetUserReviewsAsync()
+    {
+        var query = new GetUserReviewsQuery { UserId = _currentUserService.UserId };
+        return await _mediator.Send(query);
+    }
+
+    public async Task<ReviewDto> UpdateReviewAsync(int reviewId, int rating, string comment)
+    {
+        var command = new UpdateReviewCommand
+        {
+            ReviewId = reviewId,
+            UserId = _currentUserService.UserId,
+            Rating = rating,
+            Comment = comment
+        };
+        
+        try
+        {
+            return await _mediator.Send(command);
+        }
+        catch (InvalidOperationException)
+        {
+            // Re-throw to preserve the specific error message
+            throw;
+        }
+    }
+
+    public async Task<bool> DeleteReviewAsync(int reviewId)
+    {
+        var command = new DeleteReviewCommand
+        {
+            ReviewId = reviewId,
+            UserId = _currentUserService.UserId
+        };
+        
+        try
+        {
+            return await _mediator.Send(command);
+        }
+        catch (InvalidOperationException)
+        {
+            // Re-throw to preserve the specific error message
+            throw;
+        }
+    }
 }

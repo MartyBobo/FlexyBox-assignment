@@ -1,0 +1,321 @@
+@page "/reviews"
+@rendermode InteractiveServer
+@using Application.DTOs
+@using FlexyBox.Services
+@inject IUserService UserService
+@inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
+
+<div class="reviews-page">
+    <h1>My Reviews</h1>
+    
+    @if (IsLoading)
+    {
+        <div class="loading-container">
+            <div class="spinner"></div>
+            <p>Loading your reviews...</p>
+        </div>
+    }
+    else if (UserReviews == null || !UserReviews.Any())
+    {
+        <div class="no-reviews">
+            <p>You haven't written any reviews yet.</p>
+            <p>Visit restaurants and share your experience!</p>
+        </div>
+    }
+    else
+    {
+        <div class="reviews-grid">
+            @foreach (var review in UserReviews)
+            {
+                <div class="review-card">
+                    <div class="review-card-header">
+                        <h3 class="restaurant-name" @onclick="() => NavigateToRestaurant(review.RestaurantId)">
+                            @review.RestaurantName
+                        </h3>
+                        <div class="review-actions">
+                            <button class="edit-btn" @onclick="() => StartEdit(review)">
+                                Edit
+                            </button>
+                            <button class="delete-btn" @onclick="() => ShowDeleteConfirmation(review)">
+                                Delete
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="review-rating">
+                        <StarRating Rating="@review.Rating" 
+                                   ReviewCount="0" 
+                                   ShowText="false" 
+                                   Size="small" />
+                        <span class="review-date">@review.UpdatedAt.ToString("MMM d, yyyy")</span>
+                    </div>
+                    
+                    <p class="review-comment">@review.Comment</p>
+                </div>
+            }
+        </div>
+    }
+</div>
+
+@if (ShowEditModal)
+{
+    <div class="modal-overlay" @onclick="CloseEditModal">
+        <div class="modal-container edit-review-modal" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h2>Edit Review</h2>
+                <button class="modal-close" @onclick="CloseEditModal">×</button>
+            </div>
+            
+            <div class="edit-review-content">
+                @if (!string.IsNullOrEmpty(ValidationMessage))
+                {
+                    <div class="validation-message">
+                        @ValidationMessage
+                    </div>
+                }
+                
+                <h3 class="edit-restaurant-name">@EditingReview?.RestaurantName</h3>
+                
+                <div class="rating-selector">
+                    <label>Your Rating</label>
+                    <div class="star-selector">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            var starIndex = i;
+                            <span class="star-button @(EditRating >= starIndex ? "selected" : "") @(HoveredRating >= starIndex ? "hovered" : "")"
+                                  @onclick="() => SetEditRating(starIndex)"
+                                  @onmouseover="() => HoverRating(starIndex)"
+                                  @onmouseout="() => HoverRating(0)">
+                                ★
+                            </span>
+                        }
+                    </div>
+                </div>
+                
+                <div class="comment-section">
+                    <label for="edit-comment">Your Review</label>
+                    <textarea id="edit-comment" 
+                              class="review-textarea" 
+                              placeholder="Share your experience..."
+                              @bind="EditComment"
+                              @bind:event="oninput"
+                              maxlength="1000"></textarea>
+                    <div class="character-count">
+                        @(EditComment?.Length ?? 0) / 1000
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn-cancel" @onclick="CloseEditModal" disabled="@IsSubmitting">
+                        Cancel
+                    </button>
+                    <button class="btn-submit" @onclick="SubmitEdit" disabled="@(IsSubmitting || !IsEditValid)">
+                        @if (IsSubmitting)
+                        {
+                            <span>Updating...</span>
+                        }
+                        else
+                        {
+                            <span>Update Review</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@if (ShowDeleteModal)
+{
+    <div class="modal-overlay" @onclick="CloseDeleteModal">
+        <div class="modal-container delete-confirmation-modal" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h2>Delete Review</h2>
+                <button class="modal-close" @onclick="CloseDeleteModal">×</button>
+            </div>
+            
+            <div class="delete-content">
+                <p>Are you sure you want to delete your review for <strong>@DeletingReview?.RestaurantName</strong>?</p>
+                <p class="delete-warning">This action cannot be undone.</p>
+                
+                <div class="modal-actions">
+                    <button class="btn-cancel" @onclick="CloseDeleteModal" disabled="@IsDeleting">
+                        Cancel
+                    </button>
+                    <button class="btn-delete" @onclick="ConfirmDelete" disabled="@IsDeleting">
+                        @if (IsDeleting)
+                        {
+                            <span>Deleting...</span>
+                        }
+                        else
+                        {
+                            <span>Delete Review</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    private List<UserReviewDto>? UserReviews { get; set; }
+    private bool IsLoading { get; set; } = true;
+    
+    // Edit modal state
+    private bool ShowEditModal { get; set; }
+    private UserReviewDto? EditingReview { get; set; }
+    private int EditRating { get; set; }
+    private int HoveredRating { get; set; }
+    private string EditComment { get; set; } = string.Empty;
+    private bool IsSubmitting { get; set; }
+    private string? ValidationMessage { get; set; }
+    
+    // Delete modal state
+    private bool ShowDeleteModal { get; set; }
+    private UserReviewDto? DeletingReview { get; set; }
+    private bool IsDeleting { get; set; }
+    
+    private bool IsEditValid => EditRating > 0 && !string.IsNullOrWhiteSpace(EditComment);
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadReviews();
+    }
+
+    private async Task LoadReviews()
+    {
+        try
+        {
+            IsLoading = true;
+            UserReviews = await UserService.GetUserReviewsAsync();
+        }
+        catch (Exception)
+        {
+            await JSRuntime.InvokeVoidAsync("showToast", "Error loading reviews", "error");
+        }
+        finally
+        {
+            IsLoading = false;
+            StateHasChanged();
+        }
+    }
+
+    private void NavigateToRestaurant(int restaurantId)
+    {
+        NavigationManager.NavigateTo($"/restaurant/{restaurantId}");
+    }
+
+    private void StartEdit(UserReviewDto review)
+    {
+        EditingReview = review;
+        EditRating = review.Rating;
+        EditComment = review.Comment;
+        ValidationMessage = null;
+        ShowEditModal = true;
+        StateHasChanged();
+    }
+
+    private void CloseEditModal()
+    {
+        ShowEditModal = false;
+        EditingReview = null;
+        ValidationMessage = null;
+        StateHasChanged();
+    }
+
+    private void SetEditRating(int rating)
+    {
+        EditRating = rating;
+        ValidationMessage = null;
+        StateHasChanged();
+    }
+
+    private void HoverRating(int rating)
+    {
+        HoveredRating = rating;
+        StateHasChanged();
+    }
+
+    private async Task SubmitEdit()
+    {
+        if (!IsEditValid || EditingReview == null)
+        {
+            ValidationMessage = "Please provide both a rating and a review comment.";
+            return;
+        }
+
+        IsSubmitting = true;
+        ValidationMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            var updatedReview = await UserService.UpdateReviewAsync(EditingReview.Id, EditRating, EditComment);
+            
+            // Update the local review in the list
+            var index = UserReviews!.FindIndex(r => r.Id == EditingReview.Id);
+            if (index >= 0)
+            {
+                UserReviews[index].Rating = updatedReview.Rating;
+                UserReviews[index].Comment = updatedReview.Comment;
+                UserReviews[index].UpdatedAt = updatedReview.UpdatedAt;
+            }
+            
+            CloseEditModal();
+            await JSRuntime.InvokeVoidAsync("showToast", "Review updated successfully!", "success");
+        }
+        catch (Exception ex)
+        {
+            ValidationMessage = ex.Message;
+        }
+        finally
+        {
+            IsSubmitting = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ShowDeleteConfirmation(UserReviewDto review)
+    {
+        DeletingReview = review;
+        ShowDeleteModal = true;
+        StateHasChanged();
+    }
+
+    private void CloseDeleteModal()
+    {
+        ShowDeleteModal = false;
+        DeletingReview = null;
+        StateHasChanged();
+    }
+
+    private async Task ConfirmDelete()
+    {
+        if (DeletingReview == null) return;
+
+        IsDeleting = true;
+        StateHasChanged();
+
+        try
+        {
+            await UserService.DeleteReviewAsync(DeletingReview.Id);
+            
+            // Remove from local list
+            UserReviews?.RemoveAll(r => r.Id == DeletingReview.Id);
+            
+            CloseDeleteModal();
+            await JSRuntime.InvokeVoidAsync("showToast", "Review deleted successfully", "success");
+        }
+        catch (Exception)
+        {
+            await JSRuntime.InvokeVoidAsync("showToast", "Error deleting review", "error");
+        }
+        finally
+        {
+            IsDeleting = false;
+            StateHasChanged();
+        }
+    }
+}
