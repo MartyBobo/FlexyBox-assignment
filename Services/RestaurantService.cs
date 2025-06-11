@@ -117,4 +117,25 @@ public class RestaurantService : IRestaurantService
             throw new Exception($"Error retrieving reviews for restaurant {restaurantId}", ex);
         }
     }
+
+    public async Task<ReviewDto> CreateReviewAsync(int restaurantId, int rating, string comment)
+    {
+        try
+        {
+            var command = new CreateReviewCommand
+            {
+                UserId = _currentUser.UserId,
+                RestaurantId = restaurantId,
+                Rating = rating,
+                Comment = comment
+            };
+            var review = await _mediator.Send(command);
+            return review;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            throw new Exception($"Error creating review for restaurant {restaurantId}", ex);
+        }
+    }
 }

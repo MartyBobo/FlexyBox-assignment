@@ -11,4 +11,5 @@ public interface IRestaurantService
     Task<List<ResturantDto>> SearchRestaurantsAsync(string searchTerm);
     Task<List<ResturantDto>> GetFavoritesAsync();
     Task<List<ReviewDto>> GetRestaurantReviewsAsync(int restaurantId);
+    Task<ReviewDto> CreateReviewAsync(int restaurantId, int rating, string comment);
 }

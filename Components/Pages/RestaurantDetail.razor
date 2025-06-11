@@ -156,6 +156,9 @@
                         @rating @(rating == 1 ? "star" : "stars")
                     </button>
                 }
+                <button class="add-review-btn" @onclick="ShowAddReviewModal">
+                    + Add Review
+                </button>
             </div>
             
             <div class="modal-content">
@@ -196,6 +199,72 @@
     </div>
 }
 
+@if (ShowAddReviewModalFlag)
+{
+    <div class="modal-overlay" @onclick="CloseAddReviewModal">
+        <div class="modal-container add-review-modal" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h2>Write a Review</h2>
+                <button class="modal-close" @onclick="CloseAddReviewModal">×</button>
+            </div>
+            
+            <div class="add-review-content">
+                @if (!string.IsNullOrEmpty(ValidationMessage))
+                {
+                    <div class="validation-message">
+                        @ValidationMessage
+                    </div>
+                }
+                
+                <div class="rating-selector">
+                    <label>Your Rating</label>
+                    <div class="star-selector">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            var starIndex = i;
+                            <span class="star-button @(NewReviewRating >= starIndex ? "selected" : "") @(HoveredRating >= starIndex ? "hovered" : "")"
+                                  @onclick="() => SetRating(starIndex)"
+                                  @onmouseover="() => HoverRating(starIndex)"
+                                  @onmouseout="() => HoverRating(0)">
+                                ★
+                            </span>
+                        }
+                    </div>
+                </div>
+                
+                <div class="comment-section">
+                    <label for="review-comment">Your Review</label>
+                    <textarea id="review-comment" 
+                              class="review-textarea" 
+                              placeholder="Share your experience..."
+                              @bind="NewReviewComment"
+                              @bind:event="oninput"
+                              maxlength="1000"></textarea>
+                    <div class="character-count">
+                        @(NewReviewComment?.Length ?? 0) / 1000
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn-cancel" @onclick="CloseAddReviewModal" disabled="@IsSubmittingReview">
+                        Cancel
+                    </button>
+                    <button class="btn-submit" @onclick="SubmitReview" disabled="@(IsSubmittingReview || !IsReviewValid)">
+                        @if (IsSubmittingReview)
+                        {
+                            <span>Submitting...</span>
+                        }
+                        else
+                        {
+                            <span>Submit Review</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
 @code {    [Parameter]
     public int Id { get; set; }    private ResturantDto? Restaurant { get; set; }
     private string? SelectedMode { get; set; }
@@ -210,6 +279,16 @@
     private List<ReviewDto>? AllReviews { get; set; }
     private List<ReviewDto>? FilteredReviews { get; set; }
     private int? SelectedRatingFilter { get; set; }
+    
+    // Add Review modal state
+    private bool ShowAddReviewModalFlag { get; set; }
+    private int NewReviewRating { get; set; }
+    private int HoveredRating { get; set; }
+    private string NewReviewComment { get; set; } = string.Empty;
+    private bool IsSubmittingReview { get; set; }
+    private string? ValidationMessage { get; set; }
+    
+    private bool IsReviewValid => NewReviewRating > 0 && !string.IsNullOrWhiteSpace(NewReviewComment);
     
     private string FavoriteIcon => IsFavorited 
         ? "/images/icons/heart-filled.svg" 
@@ -386,5 +465,99 @@
             : AllReviews;
             
         StateHasChanged();
+    }
+
+    // Add Review modal methods
+    private void ShowAddReviewModal()
+    {
+        ShowAddReviewModalFlag = true;
+        NewReviewRating = 0;
+        HoveredRating = 0;
+        NewReviewComment = string.Empty;
+        ValidationMessage = null;
+        StateHasChanged();
+    }
+
+    private void CloseAddReviewModal()
+    {
+        ShowAddReviewModalFlag = false;
+        ValidationMessage = null;
+        StateHasChanged();
+    }
+
+    private void SetRating(int rating)
+    {
+        NewReviewRating = rating;
+        ValidationMessage = null;
+        StateHasChanged();
+    }
+
+    private void HoverRating(int rating)
+    {
+        HoveredRating = rating;
+        StateHasChanged();
+    }
+
+    private async Task SubmitReview()
+    {
+        if (!IsReviewValid)
+        {
+            ValidationMessage = "Please provide both a rating and a review comment.";
+            return;
+        }
+
+        IsSubmittingReview = true;
+        ValidationMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            var newReview = await RestaurantService.CreateReviewAsync(Id, NewReviewRating, NewReviewComment);
+            
+            // Add the new review to the beginning of the list
+            if (AllReviews != null)
+            {
+                AllReviews.Insert(0, newReview);
+            }
+            else
+            {
+                AllReviews = new List<ReviewDto> { newReview };
+            }
+            
+            // Update filtered reviews
+            FilterReviews(SelectedRatingFilter);
+            
+            // Update restaurant's review count and average rating
+            if (Restaurant != null)
+            {
+                Restaurant.ReviewCount++;
+                Restaurant.Reviews.Insert(0, newReview);
+                
+                // Recalculate average rating
+                if (Restaurant.Reviews.Any())
+                {
+                    Restaurant.AverageRating = (decimal?)Math.Round(Restaurant.Reviews.Average(r => r.Rating), 1);
+                }
+            }
+            
+            // Close the add review modal
+            CloseAddReviewModal();
+            
+            // Show success message
+            await JSRuntime.InvokeVoidAsync("showToast", "Your review has been submitted successfully!", "success");
+        }
+        catch (InvalidOperationException ex)
+        {
+            ValidationMessage = ex.Message;
+        }
+        catch (Exception)
+        {
+            ValidationMessage = "An error occurred while submitting your review. Please try again.";
+        }
+        finally
+        {
+            IsSubmittingReview = false;
+            StateHasChanged();
+        }
     }
 }
