@@ -22,4 +22,9 @@ public class ResturantDto
     
     public Dictionary<string, List<OpeningHoursDto>> OpeningHours { get; set; } = new();
     public List<string> GalleryImages { get; set; } = new();
+    
+    // Review-related properties
+    public decimal? AverageRating { get; set; }
+    public int ReviewCount { get; set; }
+    public List<ReviewDto> Reviews { get; set; } = new();
 }

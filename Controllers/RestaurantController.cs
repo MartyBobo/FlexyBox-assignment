@@ -31,39 +31,39 @@ public class RestaurantController : ControllerBase
             
             return Ok(restaurant);
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             return StatusCode(500, "An error occurred while retrieving the restaurant.");
         }
     }
 
     [HttpPost("{id}/favorite")]
-    public async Task<IActionResult> ToggleFavorite(int id)
+    public Task<IActionResult> ToggleFavorite(int id)
     {
         try
         {
             // For now, just return success - you can implement actual favorite logic later
             // TODO: Implement ToggleFavoriteCommand when you create the favorites feature
-            return Ok(new { Message = "Favorite toggled successfully" });
+            return Task.FromResult<IActionResult>(Ok(new { Message = "Favorite toggled successfully" }));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return StatusCode(500, "An error occurred while toggling favorite.");
+            return Task.FromResult<IActionResult>(StatusCode(500, "An error occurred while toggling favorite."));
         }
     }
 
     [HttpGet("{id}/favorite")]
-    public async Task<ActionResult<bool>> IsFavorite(int id)
+    public Task<ActionResult<bool>> IsFavorite(int id)
     {
         try
         {
             // For now, return false - implement actual logic later
             // TODO: Implement GetIsFavoriteQuery when you create the favorites feature
-            return Ok(false);
+            return Task.FromResult<ActionResult<bool>>(Ok(false));
         }
-        catch (Exception ex)
+        catch (Exception)
         {
-            return StatusCode(500, "An error occurred while checking favorite status.");
+            return Task.FromResult<ActionResult<bool>>(StatusCode(500, "An error occurred while checking favorite status."));
         }
     }
 }

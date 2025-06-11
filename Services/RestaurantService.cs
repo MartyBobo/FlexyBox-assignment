@@ -51,7 +51,7 @@ public class RestaurantService : IRestaurantService
             var result = await _mediator.Send(query);
             return result;
         }
-        catch (Exception ex)
+        catch (Exception)
         {
             // Log the exception and return false as default
             return false;
@@ -100,6 +100,47 @@ public class RestaurantService : IRestaurantService
         {
             // Log the exception
             throw new Exception("Error retrieving all restaurants", ex);
+        }
+    }
+
+    public async Task<List<ReviewDto>> GetRestaurantReviewsAsync(int restaurantId)
+    {
+        try
+        {
+            var query = new GetRestaurantReviewsQuery { RestaurantId = restaurantId };
+            var reviews = await _mediator.Send(query);
+            return reviews;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            throw new Exception($"Error retrieving reviews for restaurant {restaurantId}", ex);
+        }
+    }
+
+    public async Task<ReviewDto> CreateReviewAsync(int restaurantId, int rating, string comment)
+    {
+        try
+        {
+            var command = new CreateReviewCommand
+            {
+                UserId = _currentUser.UserId,
+                RestaurantId = restaurantId,
+                Rating = rating,
+                Comment = comment
+            };
+            var review = await _mediator.Send(command);
+            return review;
+        }
+        catch (InvalidOperationException)
+        {
+            // Re-throw InvalidOperationException to preserve the specific error message
+            throw;
+        }
+        catch (Exception ex)
+        {
+            // Log the exception
+            throw new Exception($"Error creating review for restaurant {restaurantId}", ex);
         }
     }
 }

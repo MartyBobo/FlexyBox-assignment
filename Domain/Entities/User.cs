@@ -25,6 +25,7 @@ public class User
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
     public DateTime UpdatedAt { get; set; } = DateTime.UtcNow;
     
-    // Navigation property to favorites
+    // Navigation properties
     public virtual ICollection<Favorite> Favorites { get; set; } = new List<Favorite>();
+    public virtual ICollection<Review> Reviews { get; set; } = new List<Review>();
 }

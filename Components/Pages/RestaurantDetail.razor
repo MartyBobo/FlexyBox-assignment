@@ -15,7 +15,15 @@
     {
         <div class="restaurant-header">
             <div class="restaurant-title">
-                <h1>@Restaurant.Name</h1>
+                <div class="restaurant-name-with-rating">
+                    <h1>@Restaurant.Name</h1>
+                    <div class="clickable-rating" @onclick="ShowReviewsModal">
+                        <StarRating Rating="@Restaurant.AverageRating" 
+                                   ReviewCount="@Restaurant.ReviewCount" 
+                                   ShowText="true" 
+                                   Size="large" />
+                    </div>
+                </div>
                 <div class="restaurant-status @(Restaurant.IsOpen ? "open" : "closed")">
                     • @(Restaurant.IsOpen ? "Open" : "Closed")
                 </div>
@@ -45,23 +53,46 @@
                 <img src="/images/icons/email-icon.svg" alt="Email" class="icon" />
                 <span>@Restaurant.Email</span>
             </div>
-        </div>
-
-        <div class="gallery-container">
-            <div class="gallery-scroller">
-                @if (Restaurant.GalleryImages != null)
-                {
-                    @foreach (var imageUrl in Restaurant.GalleryImages)
-                    {
-                        <div class="gallery-image">
-                            <img src="@imageUrl" alt="Restaurant image" />
+        </div>        <div class="gallery-container">
+            @if (Restaurant.GalleryImages != null && Restaurant.GalleryImages.Any())
+            {
+                <div class="carousel">
+                    <button class="carousel-btn carousel-prev" @onclick="PreviousImage" disabled="@(CurrentImageIndex == 0)">
+                        <img src="/images/icons/arrow-left.svg" alt="Previous" />
+                    </button>
+                    
+                    <div class="carousel-track-container">
+                        <div class="carousel-track" style="transform: translateX(-@(CurrentImageIndex * 100)%)">
+                            @for (int i = 0; i < Restaurant.GalleryImages.Count; i++)
+                            {
+                                var imageUrl = Restaurant.GalleryImages[i];
+                                <div class="carousel-slide">
+                                    <img src="@imageUrl" alt="Restaurant image @(i + 1)" />
+                                </div>
+                            }
                         </div>
-                    }                }
-                else
-                {
-                    <p>No images available.</p>
-                }
-            </div>
+                    </div>
+                    
+                    <button class="carousel-btn carousel-next" @onclick="NextImage" disabled="@(CurrentImageIndex >= Restaurant.GalleryImages.Count - 1)">
+                        <img src="/images/icons/arrow-right.svg" alt="Next" />
+                    </button>
+                </div>
+                
+                <!-- Image indicators -->
+                <div class="carousel-indicators">
+                    @for (int i = 0; i < Restaurant.GalleryImages.Count; i++)
+                    {
+                        var index = i;
+                        <button class="indicator @(CurrentImageIndex == index ? "active" : "")" 
+                                @onclick="() => GoToImage(index)">
+                        </button>
+                    }
+                </div>
+            }
+            else
+            {
+                <p>No images available.</p>
+            }
         </div>
 
         <div class="opening-hours-section">
@@ -103,14 +134,161 @@
         </div>    }
 </div>
 
-@code {    [Parameter]
-    public int Id { get; set; }
+@if (ShowReviewsModalFlag)
+{
+    <div class="modal-overlay" @onclick="CloseReviewsModal">
+        <div class="modal-container" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h2>Reviews</h2>
+                <button class="modal-close" @onclick="CloseReviewsModal">×</button>
+            </div>
+            
+            <div class="modal-filters">
+                <button class="filter-btn @(SelectedRatingFilter == null ? "active" : "")" 
+                        @onclick="() => FilterReviews(null)">
+                    All
+                </button>
+                @for (int i = 5; i >= 1; i--)
+                {
+                    var rating = i;
+                    <button class="filter-btn @(SelectedRatingFilter == rating ? "active" : "")" 
+                            @onclick="() => FilterReviews(rating)">
+                        @rating @(rating == 1 ? "star" : "stars")
+                    </button>
+                }
+                <button class="add-review-btn" @onclick="ShowAddReviewModal">
+                    + Add Review
+                </button>
+            </div>
+            
+            <div class="modal-content">
+                @if (FilteredReviews == null || IsLoadingReviews)
+                {
+                    <div class="reviews-loading">
+                        <div class="spinner"></div>
+                        <p>Loading reviews...</p>
+                    </div>
+                }
+                else if (!FilteredReviews.Any())
+                {
+                    <div class="no-reviews">
+                        <p>@(SelectedRatingFilter.HasValue ? $"No {SelectedRatingFilter}-star reviews yet." : "No reviews yet.")</p>
+                    </div>
+                }
+                else
+                {
+                    <div class="reviews-list">
+                        @foreach (var review in FilteredReviews)
+                        {
+                            <div class="review-card">
+                                <div class="review-header">
+                                    <span class="review-username">@review.Username</span>
+                                    <StarRating Rating="@review.Rating" 
+                                               ReviewCount="0" 
+                                               ShowText="false" 
+                                               Size="small" />
+                                </div>
+                                <p class="review-comment">@review.Comment</p>
+                                <span class="review-date">@review.CreatedAt.ToString("MMM d, yyyy")</span>
+                            </div>
+                        }
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+}
 
-    private ResturantDto? Restaurant { get; set; }
+@if (ShowAddReviewModalFlag)
+{
+    <div class="modal-overlay" @onclick="CloseAddReviewModal">
+        <div class="modal-container add-review-modal" @onclick:stopPropagation="true">
+            <div class="modal-header">
+                <h2>Write a Review</h2>
+                <button class="modal-close" @onclick="CloseAddReviewModal">×</button>
+            </div>
+            
+            <div class="add-review-content">
+                @if (!string.IsNullOrEmpty(ValidationMessage))
+                {
+                    <div class="validation-message">
+                        @ValidationMessage
+                    </div>
+                }
+                
+                <div class="rating-selector">
+                    <label>Your Rating</label>
+                    <div class="star-selector">
+                        @for (int i = 1; i <= 5; i++)
+                        {
+                            var starIndex = i;
+                            <span class="star-button @(NewReviewRating >= starIndex ? "selected" : "") @(HoveredRating >= starIndex ? "hovered" : "")"
+                                  @onclick="() => SetRating(starIndex)"
+                                  @onmouseover="() => HoverRating(starIndex)"
+                                  @onmouseout="() => HoverRating(0)">
+                                ★
+                            </span>
+                        }
+                    </div>
+                </div>
+                
+                <div class="comment-section">
+                    <label for="review-comment">Your Review</label>
+                    <textarea id="review-comment" 
+                              class="review-textarea" 
+                              placeholder="Share your experience..."
+                              @bind="NewReviewComment"
+                              @bind:event="oninput"
+                              maxlength="1000"></textarea>
+                    <div class="character-count">
+                        @(NewReviewComment?.Length ?? 0) / 1000
+                    </div>
+                </div>
+                
+                <div class="modal-actions">
+                    <button class="btn-cancel" @onclick="CloseAddReviewModal" disabled="@IsSubmittingReview">
+                        Cancel
+                    </button>
+                    <button class="btn-submit" @onclick="SubmitReview" disabled="@(IsSubmittingReview || !IsReviewValid)">
+                        @if (IsSubmittingReview)
+                        {
+                            <span>Submitting...</span>
+                        }
+                        else
+                        {
+                            <span>Submit Review</span>
+                        }
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+
+@code {    [Parameter]
+    public int Id { get; set; }    private ResturantDto? Restaurant { get; set; }
     private string? SelectedMode { get; set; }
     private bool IsFavorited { get; set; }
     private bool IsToggling { get; set; }
     private bool IsPulsing { get; set; }
+    private int CurrentImageIndex { get; set; } = 0;
+    
+    // Reviews modal state
+    private bool ShowReviewsModalFlag { get; set; }
+    private bool IsLoadingReviews { get; set; }
+    private List<ReviewDto>? AllReviews { get; set; }
+    private List<ReviewDto>? FilteredReviews { get; set; }
+    private int? SelectedRatingFilter { get; set; }
+    
+    // Add Review modal state
+    private bool ShowAddReviewModalFlag { get; set; }
+    private int NewReviewRating { get; set; }
+    private int HoveredRating { get; set; }
+    private string NewReviewComment { get; set; } = string.Empty;
+    private bool IsSubmittingReview { get; set; }
+    private string? ValidationMessage { get; set; }
+    
+    private bool IsReviewValid => NewReviewRating > 0 && !string.IsNullOrWhiteSpace(NewReviewComment);
     
     private string FavoriteIcon => IsFavorited 
         ? "/images/icons/heart-filled.svg" 
@@ -130,13 +308,14 @@
     {
         try
         {
-            Restaurant = await RestaurantService.GetRestaurantAsync(Id);
-
-            if (Restaurant == null)
+            Restaurant = await RestaurantService.GetRestaurantAsync(Id);            if (Restaurant == null)
             {
                 NavigationManager.NavigateTo("/");
                 return;
             }
+
+            // Reset carousel to first image when loading new restaurant
+            CurrentImageIndex = 0;
 
             // Load favorite status
             IsFavorited = await RestaurantService.IsFavoriteAsync(Id);
@@ -191,7 +370,7 @@
             await Task.Delay(300);
             IsPulsing = false;
             StateHasChanged();
-        }        catch (Exception ex)
+        }        catch (Exception)
         {
             // Handle error
             await JSRuntime.InvokeVoidAsync("showToast", "Error updating favorites. Please try again.", "error");
@@ -199,6 +378,185 @@
         finally
         {
             IsToggling = false;
+            StateHasChanged();
+        }
+    }
+
+    private async Task NextImage()
+    {
+        if (Restaurant?.GalleryImages != null && CurrentImageIndex < Restaurant.GalleryImages.Count - 1)
+        {
+            CurrentImageIndex++;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task PreviousImage()
+    {
+        if (CurrentImageIndex > 0)
+        {
+            CurrentImageIndex--;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    private async Task GoToImage(int index)
+    {
+        if (Restaurant?.GalleryImages != null && index >= 0 && index < Restaurant.GalleryImages.Count)
+        {
+            CurrentImageIndex = index;
+            await InvokeAsync(StateHasChanged);
+        }
+    }
+
+    // Reviews modal methods
+    private async Task ShowReviewsModal()
+    {
+        ShowReviewsModalFlag = true;
+        IsLoadingReviews = true;
+        SelectedRatingFilter = null;
+        StateHasChanged();
+
+        try
+        {
+            // Use the reviews from the Restaurant object if available
+            if (Restaurant?.Reviews != null && Restaurant.Reviews.Any())
+            {
+                AllReviews = Restaurant.Reviews;
+            }
+            else
+            {
+                // Fallback to fetching reviews separately if needed
+                AllReviews = await RestaurantService.GetRestaurantReviewsAsync(Id);
+            }
+            
+            FilteredReviews = AllReviews;
+        }
+        catch (Exception)
+        {
+            AllReviews = new List<ReviewDto>();
+            FilteredReviews = new List<ReviewDto>();
+        }
+        finally
+        {
+            IsLoadingReviews = false;
+            StateHasChanged();
+        }
+    }
+
+    private void CloseReviewsModal()
+    {
+        ShowReviewsModalFlag = false;
+        StateHasChanged();
+    }
+
+    private void FilterReviews(int? rating)
+    {
+        SelectedRatingFilter = rating;
+        
+        if (AllReviews == null)
+        {
+            FilteredReviews = new List<ReviewDto>();
+            return;
+        }
+
+        FilteredReviews = rating.HasValue 
+            ? AllReviews.Where(r => r.Rating == rating.Value).ToList()
+            : AllReviews;
+            
+        StateHasChanged();
+    }
+
+    // Add Review modal methods
+    private void ShowAddReviewModal()
+    {
+        ShowAddReviewModalFlag = true;
+        NewReviewRating = 0;
+        HoveredRating = 0;
+        NewReviewComment = string.Empty;
+        ValidationMessage = null;
+        StateHasChanged();
+    }
+
+    private void CloseAddReviewModal()
+    {
+        ShowAddReviewModalFlag = false;
+        ValidationMessage = null;
+        StateHasChanged();
+    }
+
+    private void SetRating(int rating)
+    {
+        NewReviewRating = rating;
+        ValidationMessage = null;
+        StateHasChanged();
+    }
+
+    private void HoverRating(int rating)
+    {
+        HoveredRating = rating;
+        StateHasChanged();
+    }
+
+    private async Task SubmitReview()
+    {
+        if (!IsReviewValid)
+        {
+            ValidationMessage = "Please provide both a rating and a review comment.";
+            return;
+        }
+
+        IsSubmittingReview = true;
+        ValidationMessage = null;
+        StateHasChanged();
+
+        try
+        {
+            var newReview = await RestaurantService.CreateReviewAsync(Id, NewReviewRating, NewReviewComment);
+            
+            // Add the new review to the beginning of the list
+            if (AllReviews != null)
+            {
+                AllReviews.Insert(0, newReview);
+            }
+            else
+            {
+                AllReviews = new List<ReviewDto> { newReview };
+            }
+            
+            // Update filtered reviews
+            FilterReviews(SelectedRatingFilter);
+            
+            // Update restaurant's review count and average rating
+            if (Restaurant != null)
+            {
+                Restaurant.ReviewCount++;
+                Restaurant.Reviews.Insert(0, newReview);
+                
+                // Recalculate average rating
+                if (Restaurant.Reviews.Any())
+                {
+                    Restaurant.AverageRating = (decimal?)Math.Round(Restaurant.Reviews.Average(r => r.Rating), 1);
+                }
+            }
+            
+            // Close the add review modal
+            CloseAddReviewModal();
+            
+            // Show success message
+            await JSRuntime.InvokeVoidAsync("showToast", "Your review has been submitted successfully!", "success");
+        }
+        catch (InvalidOperationException ex)
+        {
+            ValidationMessage = ex.Message;
+        }
+        catch (Exception)
+        {
+            ValidationMessage = "An error occurred while submitting your review. Please try again.";
+        }
+        finally
+        {
+            IsSubmittingReview = false;
             StateHasChanged();
         }
     }
