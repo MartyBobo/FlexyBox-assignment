@@ -1,8 +1,9 @@
 @page "/restaurant/{Id:int}"
 @rendermode InteractiveServer
 @using Application.DTOs
-@using FlexyBox.Services
-@inject IRestaurantService RestaurantService
+@using FlexyBox.Controllers.Models.Requests
+@using System.Net.Http.Json
+@inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
@@ -308,7 +309,9 @@
     {
         try
         {
-            Restaurant = await RestaurantService.GetRestaurantAsync(Id);            if (Restaurant == null)
+            Restaurant = await Http.GetFromJsonAsync<ResturantDto>($"api/restaurant/{Id}");
+            
+            if (Restaurant == null)
             {
                 NavigationManager.NavigateTo("/");
                 return;
@@ -318,7 +321,8 @@
             CurrentImageIndex = 0;
 
             // Load favorite status
-            IsFavorited = await RestaurantService.IsFavoriteAsync(Id);
+            var favoriteResponse = await Http.GetFromJsonAsync<dynamic>($"api/restaurant/{Id}/favorite");
+            IsFavorited = favoriteResponse?.isFavorite ?? false;
 
             if (Restaurant.OpeningHours != null && Restaurant.OpeningHours.Any())
             {
@@ -334,9 +338,9 @@
                 SelectedMode = null;
             }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Handle error appropriately - could set an error message property
+            Console.WriteLine($"Error loading restaurant: {ex.Message}");
         }
     }    private async Task HandleModeSelection(string mode)
     {
@@ -353,8 +357,17 @@
 
         try
         {
-            var wasToggled = await RestaurantService.ToggleFavoriteAsync(Id);
-            IsFavorited = !IsFavorited; // Toggle the state
+            var response = await Http.PostAsync($"api/restaurant/{Id}/favorite", null);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var result = await response.Content.ReadFromJsonAsync<dynamic>();
+                IsFavorited = result?.isFavorite ?? !IsFavorited;
+            }
+            else
+            {
+                throw new Exception($"Failed to toggle favorite: {response.StatusCode}");
+            }
             
             // Trigger pulse animation
             IsPulsing = true;
@@ -427,7 +440,7 @@
             else
             {
                 // Fallback to fetching reviews separately if needed
-                AllReviews = await RestaurantService.GetRestaurantReviewsAsync(Id);
+                AllReviews = await Http.GetFromJsonAsync<List<ReviewDto>>($"api/restaurant/{Id}/reviews") ?? new List<ReviewDto>();
             }
             
             FilteredReviews = AllReviews;
@@ -512,7 +525,21 @@
 
         try
         {
-            var newReview = await RestaurantService.CreateReviewAsync(Id, NewReviewRating, NewReviewComment);
+            var request = new CreateReviewRequest
+            {
+                Rating = NewReviewRating,
+                Comment = NewReviewComment
+            };
+            
+            var response = await Http.PostAsJsonAsync($"api/restaurant/{Id}/reviews", request);
+            
+            if (!response.IsSuccessStatusCode)
+            {
+                var error = await response.Content.ReadAsStringAsync();
+                throw new InvalidOperationException(error.Contains("already reviewed") ? "You have already reviewed this restaurant" : "Failed to create review");
+            }
+            
+            var newReview = await response.Content.ReadFromJsonAsync<ReviewDto>() ?? throw new Exception("Failed to parse review response");
             
             // Add the new review to the beginning of the list
             if (AllReviews != null)

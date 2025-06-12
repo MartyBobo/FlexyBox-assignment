@@ -1,8 +1,8 @@
 @page "/search"
 @rendermode InteractiveServer
 @using Application.DTOs
-@using FlexyBox.Services
-@inject IRestaurantService RestaurantService
+@using System.Net.Http.Json
+@inject HttpClient Http
 @inject IJSRuntime JSRuntime
 
 <div class="search-page">
@@ -120,15 +120,15 @@
 
         try
         {
-            Results = await RestaurantService.SearchRestaurantsAsync(SearchTerm);
+            var encodedSearchTerm = Uri.EscapeDataString(SearchTerm);
+            Results = await Http.GetFromJsonAsync<List<ResturantDto>>($"api/restaurant/search?term={encodedSearchTerm}") ?? new List<ResturantDto>();
             HasSearched = true;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Handle error - for now just clear results
+            Console.WriteLine($"Error searching restaurants: {ex.Message}");
             Results.Clear();
             HasSearched = true;
-            // TODO: Show error message to user
         }
         finally
         {

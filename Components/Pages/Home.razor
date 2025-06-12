@@ -1,7 +1,7 @@
 ﻿@page "/"
 @using Application.DTOs
-@using FlexyBox.Services
-@inject IRestaurantService RestaurantService
+@using System.Net.Http.Json
+@inject HttpClient Http
 
 <PageTitle>FlexyBox - Restaurants</PageTitle>
 
@@ -52,8 +52,18 @@
 </div>
 
 @code {
-    private List<ResturantDto>? restaurants;    protected override async Task OnInitializedAsync()
+    private List<ResturantDto>? restaurants;
+
+    protected override async Task OnInitializedAsync()
     {
-        restaurants = await RestaurantService.GetAllRestaurantsAsync();
+        try
+        {
+            restaurants = await Http.GetFromJsonAsync<List<ResturantDto>>("api/restaurant");
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading restaurants: {ex.Message}");
+            restaurants = new List<ResturantDto>();
+        }
     }
 }

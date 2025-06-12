@@ -1,8 +1,8 @@
 @page "/favorites"
 @rendermode InteractiveServer
 @using Application.DTOs
-@using FlexyBox.Services
-@inject IRestaurantService RestaurantService
+@using System.Net.Http.Json
+@inject HttpClient Http
 
 <div class="favorites-page">
     <div class="favorites-header">
@@ -71,13 +71,12 @@
             IsLoading = true;
             StateHasChanged();
             
-            FavoriteRestaurants = await RestaurantService.GetFavoritesAsync();
+            FavoriteRestaurants = await Http.GetFromJsonAsync<List<ResturantDto>>("api/restaurant/favorites");
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            // Handle error - for now just set empty list
+            Console.WriteLine($"Error loading favorites: {ex.Message}");
             FavoriteRestaurants = new List<ResturantDto>();
-            // TODO: Show error message to user
         }
         finally
         {

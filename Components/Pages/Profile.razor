@@ -1,9 +1,10 @@
 @page "/profile"
 @rendermode InteractiveServer
 @using Application.DTOs
-@using FlexyBox.Services
+@using FlexyBox.Controllers.Models.Requests
 @using System.ComponentModel.DataAnnotations
-@inject IUserService UserService
+@using System.Net.Http.Json
+@inject HttpClient Http
 @inject IJSRuntime JSRuntime
 
 <div class="profile-page">
@@ -93,12 +94,12 @@
             IsLoading = true;
             StateHasChanged();
             
-            UserProfile = await UserService.GetProfileAsync();
+            UserProfile = await Http.GetFromJsonAsync<UserDto>("api/user/profile");
         }
-        catch (Exception)
-        {            // Handle error - for now just set null profile
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading profile: {ex.Message}");
             UserProfile = null;
-            // TODO: Log error
         }
         finally
         {
@@ -116,13 +117,29 @@
             IsSaving = true;
             StateHasChanged();
 
-            await UserService.UpdateProfileAsync(UserProfile);
+            var request = new UpdateProfileRequest
+            {
+                Name = UserProfile.Name,
+                Email = UserProfile.Email,
+                Phone = UserProfile.Phone,
+                Address = UserProfile.Address
+            };
+
+            var response = await Http.PutAsJsonAsync("api/user/profile", request);
             
-            // Show success notification
-            await JSRuntime.InvokeVoidAsync("showToast", "Profile updated successfully!", "success");
+            if (response.IsSuccessStatusCode)
+            {
+                // Show success notification
+                await JSRuntime.InvokeVoidAsync("showToast", "Profile updated successfully!", "success");
+            }
+            else
+            {
+                throw new Exception($"Failed to update profile: {response.StatusCode}");
+            }
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            Console.WriteLine($"Error saving profile: {ex.Message}");
             // Show error notification
             await JSRuntime.InvokeVoidAsync("showToast", "Failed to update profile. Please try again.", "error");
         }

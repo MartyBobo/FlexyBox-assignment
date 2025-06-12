@@ -10,6 +10,50 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Add controllers for API endpoints
+builder.Services.AddControllers();
+
+// Add HttpClient for Blazor components to call API
+builder.Services.AddScoped(sp =>
+{
+    // For Blazor Server, we need to create HttpClient differently
+    var httpClient = new HttpClient();
+    
+    // In development, use the current host
+    if (builder.Environment.IsDevelopment())
+    {
+        // This will be set correctly when the app runs
+        httpClient.BaseAddress = new Uri(builder.Configuration["BaseUrl"] ?? "https://localhost:7200/");
+    }
+    else
+    {
+        // In production, use the configuration value
+        httpClient.BaseAddress = new Uri(builder.Configuration["BaseUrl"] ?? "/");
+    }
+    
+    return httpClient;
+});
+
+// Add API Explorer and Swagger
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new Microsoft.OpenApi.Models.OpenApiInfo
+    {
+        Title = "FlexyBox API",
+        Version = "v1",
+        Description = "API for FlexyBox restaurant review application"
+    });
+    
+    // Include XML comments if available
+    var xmlFile = $"{System.Reflection.Assembly.GetExecutingAssembly().GetName().Name}.xml";
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+    if (File.Exists(xmlPath))
+    {
+        options.IncludeXmlComments(xmlPath);
+    }
+});
+
 // Register MediatR (still needed for service layer)
 builder.Services.AddMediatR(cfg => {
     cfg.RegisterServicesFromAssembly(typeof(Application.Resturants.Queries.GetResturantByIdQuery).Assembly);
@@ -65,6 +109,17 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Enable Swagger in Development
+if (app.Environment.IsDevelopment())
+{
+    app.UseSwagger();
+    app.UseSwaggerUI(options =>
+    {
+        options.SwaggerEndpoint("/swagger/v1/swagger.json", "FlexyBox API v1");
+        options.RoutePrefix = "swagger";
+    });
+}
+
 app.UseHttpsRedirection();
 
 app.UseAntiforgery();
@@ -72,5 +127,8 @@ app.UseAntiforgery();
 app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+// Map API Controllers
+app.MapControllers();
 
 app.Run();
